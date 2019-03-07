@@ -43,9 +43,7 @@ func main() {
 	os.Setenv(`JAVA_HOME`, javaHome)
 
 	if err := java.Verify(); err != nil {
-		utils.Err("Error executing java binary [%s].\nIt might be incompatible with your OS.\n\n  Cause: %v\n", java.Executable(), err)
-	} else {
-		utils.Out(`java OK`)
+		utils.Err("Error executing java binary at [%s].\nIt might be incompatible with your OS.\n\n  Cause: %v\n", java.Executable(), err)
 	}
 
 	if utils.TryConnect(BIND_HOST, HTTP_PORT) || utils.TryConnect(BIND_HOST, HTTPS_PORT) {
