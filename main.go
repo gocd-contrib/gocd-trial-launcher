@@ -27,6 +27,11 @@ var (
 
 	serverWd string = filepath.Join(dataDir, `server`)
 	agentWd  string = filepath.Join(dataDir, `agent`)
+
+	// These should be set by the linker at build time
+	Version   = `devbuild`
+	GitCommit = `unknown`
+	Platform  = `devbuild`
 )
 
 func cleanup() {
