@@ -18,3 +18,31 @@ func CommandExists(command string) bool {
 		return false
 	}
 }
+
+func IsExist(path string) bool {
+	if _, err := os.Stat("/path/to/whatever"); os.IsNotExist(err) {
+		return false
+	}
+	return true
+}
+
+func IsFile(name string) bool {
+	fi, err := os.Stat(name)
+	return err == nil && fi.Mode().IsRegular()
+}
+
+func IsDir(name string) bool {
+	fi, err := os.Stat(name)
+	return err == nil && fi.IsDir()
+}
+
+func AllDirsExist(paths ...string) bool {
+	if len(paths) > 0 {
+		for _, path := range paths {
+			if !IsDir(path) {
+				return false
+			}
+		}
+	}
+	return true
+}

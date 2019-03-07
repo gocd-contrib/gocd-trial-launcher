@@ -2,10 +2,13 @@ package utils
 
 import (
 	"io/ioutil"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
 )
+
+var Debug bool = false
 
 type JavaProps map[string]string
 
@@ -27,11 +30,22 @@ func (j *Java) Run(properties JavaProps, args ...string) *exec.Cmd {
 		args = append(properties.Args(), args...)
 	}
 
-	return exec.Command(j.java, args...)
+	if Debug {
+		Out("%s %v", j.java, args)
+	}
+
+	cmd := exec.Command(j.java, args...)
+	cmd.Env = os.Environ() // inherit env
+
+	if os.Getenv(`JAVA_HOME`) != j.Home { // ensure JAVA_HOME uses the configured Home
+		cmd.Env = append(cmd.Env, `JAVA_HOME=`+j.Home)
+	}
+
+	return cmd
 }
 
 func (j *Java) Verify() error {
-	cmd := j.Run(nil, `version`)
+	cmd := j.Run(nil, `-version`)
 	cmd.Stdout = ioutil.Discard
 	cmd.Stderr = ioutil.Discard
 

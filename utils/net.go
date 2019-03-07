@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func Connect(host string, port int) bool {
+func TryConnect(host string, port int) bool {
 	if c, err := net.Dial("tcp", host+`:`+strconv.Itoa(port)); err == nil {
 		defer c.Close()
 		return true
@@ -16,10 +16,10 @@ func Connect(host string, port int) bool {
 	}
 }
 
-func WaitForPortAttached(port int) {
+func WaitUntilPortAttached(port int) {
 	fmt.Printf(`Waiting for port %d`, port)
 
-	for !Connect(`localhost`, port) {
+	for !TryConnect(`localhost`, port) {
 		fmt.Print(`.`)
 		time.Sleep(time.Second)
 	}

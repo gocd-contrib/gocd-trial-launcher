@@ -9,10 +9,18 @@ import (
 	"github.com/gocd-private/gocd-trial-launcher/utils"
 )
 
+const (
+	HTTP_PORT  = 8153
+	HTTPS_PORT = 8154
+	BIND_HOST  = `localhost`
+)
+
 var (
 	baseDir    string = utils.BaseDir()
 	packageDir string = filepath.Join(baseDir, `packages`)
 	dataDir    string = filepath.Join(baseDir, `data`)
+	servPkgDir string = filepath.Join(packageDir, `go-server`)
+	agntPkgDir string = filepath.Join(packageDir, `go-agent`)
 
 	javaHome string      = filepath.Join(packageDir, `jre`)
 	java     *utils.Java = utils.NewJava(javaHome)
@@ -28,13 +36,20 @@ func cleanup() {
 func main() {
 	trap.Trap(cleanup, os.Interrupt, syscall.SIGTERM, syscall.SIGHUP)
 
+	if !utils.AllDirsExist(servPkgDir, agntPkgDir, javaHome) {
+		utils.Die(1, "This GoCD demo archive is missing 1 or more dependencies in the `packages` directory.\nPlease extract a clean copy from the zip archive and try again.")
+	}
+
 	os.Setenv(`JAVA_HOME`, javaHome)
-	utils.Out(`JAVA_HOME: %s`, os.Getenv(`JAVA_HOME`))
 
 	if err := java.Verify(); err != nil {
 		utils.Err("Error executing java binary [%s].\nIt might be incompatible with your OS.\n\n  Cause: %v\n", java.Executable(), err)
 	} else {
 		utils.Out(`java OK`)
+	}
+
+	if utils.TryConnect(BIND_HOST, HTTP_PORT) || utils.TryConnect(BIND_HOST, HTTPS_PORT) {
+		utils.Die(1, `Both ports %d and %d must be free to run this demo`, HTTP_PORT, HTTPS_PORT)
 	}
 
 	utils.Out(`server: %s`, serverWd)

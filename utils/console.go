@@ -26,9 +26,9 @@ func Err(f string, t ...interface{}) {
 // on value of exitCode
 func Die(exitCode int, f string, t ...interface{}) {
 	if exitCode != 0 {
-		Err(f, t)
+		Err(f, t...)
 	} else {
-		Out(f, t)
+		Out(f, t...)
 	}
 
 	os.Exit(exitCode)
