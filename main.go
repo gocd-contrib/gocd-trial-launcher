@@ -14,7 +14,9 @@ var (
 	packageDir string = filepath.Join(baseDir, `packages`)
 	dataDir    string = filepath.Join(baseDir, `data`)
 
-	javaHome string = filepath.Join(packageDir, `jre`)
+	javaHome string      = filepath.Join(packageDir, `jre`)
+	java     *utils.Java = utils.NewJava(javaHome)
+
 	serverWd string = filepath.Join(dataDir, `server`)
 	agentWd  string = filepath.Join(dataDir, `agent`)
 )
@@ -28,6 +30,13 @@ func main() {
 
 	os.Setenv(`JAVA_HOME`, javaHome)
 	utils.Out(`JAVA_HOME: %s`, os.Getenv(`JAVA_HOME`))
+
+	if err := java.Verify(); err != nil {
+		utils.Err("Error executing java binary [%s].\nIt might be incompatible with your OS.\n\n  Cause: %v\n", java.Executable(), err)
+	} else {
+		utils.Out(`java OK`)
+	}
+
 	utils.Out(`server: %s`, serverWd)
 	utils.Out(`agent: %s`, agentWd)
 	utils.Out(`python: %t`, utils.CommandExists(`python`))
