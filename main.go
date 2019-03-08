@@ -69,6 +69,8 @@ func main() {
 		utils.Die(1, "Could not create a local data directory; please check your file permissions:\n  Cause: %v", err)
 	}
 
+	gocd.PrintLogo()
+
 	var err error
 	serverCmd, err = gocd.StartServer(java, serverWd, filepath.Join(servPkgDir, "go.jar"))
 
