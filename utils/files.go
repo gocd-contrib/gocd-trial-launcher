@@ -20,7 +20,7 @@ func CommandExists(command string) bool {
 }
 
 func IsExist(path string) bool {
-	if _, err := os.Stat("/path/to/whatever"); os.IsNotExist(err) {
+	if _, err := os.Stat(path); os.IsNotExist(err) {
 		return false
 	}
 	return true
@@ -45,4 +45,13 @@ func AllDirsExist(paths ...string) bool {
 		}
 	}
 	return true
+}
+
+func MkdirP(paths ...string) error {
+	for _, path := range paths {
+		if err := os.MkdirAll(path, 0755); err != nil {
+			return err
+		}
+	}
+	return nil
 }

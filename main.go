@@ -2,9 +2,11 @@ package main
 
 import (
 	"os"
+	"os/exec"
 	"path/filepath"
 	"syscall"
 
+	"github.com/gocd-private/gocd-trial-launcher/gocd"
 	"github.com/gocd-private/gocd-trial-launcher/trap"
 	"github.com/gocd-private/gocd-trial-launcher/utils"
 )
@@ -34,8 +36,16 @@ var (
 	Platform  = `devbuild`
 )
 
+var agentCmd *exec.Cmd
+var serverCmd *exec.Cmd
+
 func cleanup() {
-	utils.Out("\nCleaning up...")
+	utils.Out("\nEnding GoCD test drive...")
+
+	gocd.StopServer(serverCmd)
+	gocd.StopAgent(agentCmd)
+
+	utils.Out("Done")
 }
 
 func main() {
@@ -55,14 +65,30 @@ func main() {
 		utils.Die(1, `Both ports %d and %d must be free to run this demo`, HTTP_PORT, HTTPS_PORT)
 	}
 
-	utils.Out(`server: %s`, serverWd)
-	utils.Out(`agent: %s`, agentWd)
-	utils.Out(`python: %t`, utils.CommandExists(`python`))
-	utils.Out(`foo: %t`, utils.CommandExists(`foo`))
+	if err := utils.MkdirP(serverWd, agentWd); err != nil {
+		utils.Die(1, "Could not create a local data directory; please check your file permissions:\n  Cause: %v", err)
+	}
+
+	var err error
+	serverCmd, err = gocd.StartServer(java, serverWd, filepath.Join(servPkgDir, "go.jar"))
+
+	if err != nil {
+		utils.Err("Could not start the GoCD server. Cause: %v", err)
+		cleanup()
+	}
+
+	utils.WaitUntilPortAttached(HTTPS_PORT)
+
+	agentCmd, err = gocd.StartAgent(java, agentWd, filepath.Join(agntPkgDir, "agent-bootstrapper.jar"))
+
+	if err != nil {
+		utils.Err("Could not start the GoCD agent. Cause: %v", err)
+		cleanup()
+	}
+
 	utils.OpenUrlInBrowser(`https://google.com`)
 
 	utils.Out(`Press Ctrl-C to exit`)
 
-	trap.WaitForSignals()
-	os.Exit(1)
+	trap.WaitForInterrupt()
 }

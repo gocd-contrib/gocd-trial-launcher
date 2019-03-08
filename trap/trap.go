@@ -7,7 +7,6 @@ import (
 
 var (
 	sigs chan os.Signal = make(chan os.Signal, 1)
-	done chan bool      = make(chan bool, 1)
 )
 
 func Trap(hook func(), signals ...os.Signal) {
@@ -16,10 +15,10 @@ func Trap(hook func(), signals ...os.Signal) {
 	go func() {
 		<-sigs
 		hook()
-		done <- true
+		os.Exit(1)
 	}()
 }
 
-func WaitForSignals() {
-	<-done
+func WaitForInterrupt() {
+	select {}
 }
