@@ -46,7 +46,7 @@ func main() {
 	trap.Trap(cleanup, os.Interrupt, syscall.SIGTERM, syscall.SIGHUP)
 
 	if !utils.AllDirsExist(servPkgDir, agntPkgDir, javaHome) {
-		utils.Die(1, "This GoCD demo archive is missing 1 or more dependencies in the `packages` directory.\nPlease extract a clean copy from the zip archive and try again.")
+		utils.Die(1, "This GoCD test drive archive is missing 1 or more dependencies in the `packages` directory.\nPlease extract a clean copy from the downloaded archive and try again.")
 	}
 
 	os.Setenv(`JAVA_HOME`, javaHome)
@@ -56,7 +56,7 @@ func main() {
 	}
 
 	if utils.TryConnect(gocd.BIND_HOST, gocd.HTTP_PORT) || utils.TryConnect(gocd.BIND_HOST, gocd.HTTPS_PORT) {
-		utils.Die(1, `Both ports %d and %d must be free to run this demo`, gocd.HTTP_PORT, gocd.HTTPS_PORT)
+		utils.Die(1, `Both ports %d and %d must be free to run this test drive.`, gocd.HTTP_PORT, gocd.HTTPS_PORT)
 	}
 
 	if err := utils.MkdirP(serverWd, agentWd); err != nil {
@@ -69,7 +69,7 @@ func main() {
 	serverCmd, err = gocd.StartServer(java, serverWd, filepath.Join(servPkgDir, "go.jar"))
 
 	if err != nil {
-		utils.Err("Could not start the GoCD server. Cause: %v", err)
+		utils.Err("Could not start the GoCD server.\n  Cause: %v", err)
 		cleanup()
 	}
 
@@ -78,16 +78,18 @@ func main() {
 	agentCmd, err = gocd.StartAgent(java, agentWd, filepath.Join(agntPkgDir, "agent-bootstrapper.jar"))
 
 	if err != nil {
-		utils.Err("Could not start the GoCD agent. Cause: %v", err)
+		utils.Err("Could not start the GoCD agent.\n  Cause: %v", err)
 		cleanup()
 	}
 
-	utils.Out("\n\n")
-	utils.Out("Server logs written to: %q", filepath.Join(serverWd, `logs`))
-	utils.Out("Agent logs written to: %q", filepath.Join(agentWd, `logs`))
+	utils.Out("")
+	utils.Out("Server log directory: %q", filepath.Join(serverWd, `logs`))
+	utils.Out("Agent log directory:  %q", filepath.Join(agentWd, `logs`))
+	utils.Out("All data written to:  %q", dataDir)
+
 	utils.OpenUrlInBrowser(gocd.WEB_URL)
 
-	utils.Out(`Press Ctrl-C to exit`)
+	utils.Out("\nPress Ctrl-C to exit")
 
 	trap.WaitForInterrupt()
 }
