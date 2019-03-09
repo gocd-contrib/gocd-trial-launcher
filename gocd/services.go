@@ -68,6 +68,8 @@ func StopAgent(cmd *exec.Cmd) {
 func startJavaApp(java *utils.Java, serviceName string, workDir string, properties utils.JavaProps, args ...string) (*exec.Cmd, error) {
 	cmd := java.Run(properties, args...)
 
+	utils.EnablePgid(cmd)
+
 	cmd.Dir = workDir
 	pidFile := filepath.Join(workDir, serviceName+".pid")
 
@@ -93,6 +95,10 @@ func stopApp(cmd *exec.Cmd, pidFile, serviceName string) {
 				utils.Err("Unable to stop the GoCD test drive. See PID: %d", cmd.Process.Pid)
 			}
 		}
+	}
+
+	if cmd != nil {
+		utils.KillPgid(cmd)
 	}
 
 	if pidFile != "" && utils.IsExist(pidFile) {
