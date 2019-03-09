@@ -3,21 +3,23 @@ package utils
 import (
 	"fmt"
 	"os"
+
+	colorable "github.com/mattn/go-colorable"
 )
 
 func Out(f string, t ...interface{}) {
 	if len(t) > 0 {
-		fmt.Fprintf(os.Stdout, f+"\n", t...)
+		fmt.Fprintf(colorable.NewColorableStdout(), f+"\n", t...)
 	} else {
-		fmt.Fprint(os.Stdout, f+"\n")
+		fmt.Fprint(colorable.NewColorableStdout(), f+"\n")
 	}
 }
 
 func Err(f string, t ...interface{}) {
 	if len(t) > 0 {
-		fmt.Fprintf(os.Stderr, f+"\n", t...)
+		fmt.Fprintf(colorable.NewColorableStderr(), f+"\n", t...)
 	} else {
-		fmt.Fprint(os.Stderr, f+"\n")
+		fmt.Fprint(colorable.NewColorableStderr(), f+"\n")
 	}
 }
 

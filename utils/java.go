@@ -20,21 +20,22 @@ func (j *JavaProps) Args() []string {
 	return args
 }
 
+// Builds a `java` command invocation with a specific JAVA_HOME
 type Java struct {
-	Home string
-	java string
+	Home       string
+	executable string
 }
 
-func (j *Java) Run(properties JavaProps, args ...string) *exec.Cmd {
+func (j *Java) Build(properties JavaProps, args ...string) *exec.Cmd {
 	if len(properties) > 0 {
 		args = append(properties.Args(), args...)
 	}
 
 	if Debug {
-		Out("%s %v", j.java, args)
+		Out("%s %v", j.executable, args)
 	}
 
-	cmd := exec.Command(j.java, args...)
+	cmd := exec.Command(j.executable, args...)
 	cmd.Env = os.Environ() // inherit env
 
 	if os.Getenv(`JAVA_HOME`) != j.Home { // ensure JAVA_HOME uses the configured Home
@@ -45,19 +46,15 @@ func (j *Java) Run(properties JavaProps, args ...string) *exec.Cmd {
 }
 
 func (j *Java) Verify() error {
-	cmd := j.Run(nil, `-version`)
+	cmd := j.Build(nil, `-version`)
 	cmd.Stdout = ioutil.Discard
 	cmd.Stderr = ioutil.Discard
 
-	if err := cmd.Start(); err != nil {
-		return err
-	}
-
-	return cmd.Wait()
+	return cmd.Run()
 }
 
 func (j *Java) Executable() string {
-	return j.java
+	return j.executable
 }
 
 func NewJava(javaHome string) *Java {
@@ -67,5 +64,5 @@ func NewJava(javaHome string) *Java {
 		java += `.exe`
 	}
 
-	return &Java{Home: javaHome, java: java}
+	return &Java{Home: javaHome, executable: java}
 }

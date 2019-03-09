@@ -1,9 +1,7 @@
 package gocd
 
 import (
-	"fmt"
-
-	colorable "github.com/mattn/go-colorable"
+	"github.com/gocd-private/gocd-trial-launcher/utils"
 	"github.com/mgutz/ansi"
 )
 
@@ -32,5 +30,5 @@ const LOGO_TEXT = `
 `
 
 func PrintLogo() {
-	fmt.Fprint(colorable.NewColorableStdout(), ansi.Magenta+LOGO_TEXT+ansi.Reset)
+	utils.Out(ansi.Magenta + LOGO_TEXT + ansi.Reset)
 }

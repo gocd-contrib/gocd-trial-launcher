@@ -1,7 +1,6 @@
 package gocd
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -17,13 +16,10 @@ const (
 	BIND_HOST  = `localhost`
 )
 
-func BrowserUrl() string {
-	return fmt.Sprintf(`http://%s:%d`, BIND_HOST, HTTP_PORT)
-}
-
-func AgentRegistrationUrl() string {
-	return fmt.Sprintf(`https://%s:%d/go`, BIND_HOST, HTTPS_PORT)
-}
+var (
+	WEB_URL            = `http://` + BIND_HOST + `:` + strconv.Itoa(HTTP_PORT)
+	AGENT_REGISTER_URL = `https://` + BIND_HOST + `:` + strconv.Itoa(HTTPS_PORT) + `/go`
+)
 
 func StartServer(java *utils.Java, workDir, jar string) (*exec.Cmd, error) {
 	configDir := filepath.Join(workDir, "config")
@@ -61,7 +57,7 @@ func StartAgent(java *utils.Java, workDir, jar string) (*exec.Cmd, error) {
 		"gocd.agent.log.dir":           logDir,
 	}
 
-	return startJavaApp(java, "agent", workDir, props, "-Xmx256m", "-jar", jar, "-serverUrl", AgentRegistrationUrl())
+	return startJavaApp(java, "agent", workDir, props, "-Xmx256m", "-jar", jar, "-serverUrl", AGENT_REGISTER_URL)
 }
 
 func StopServer(cmd *exec.Cmd) {
@@ -81,7 +77,7 @@ func StopAgent(cmd *exec.Cmd) {
 }
 
 func startJavaApp(java *utils.Java, serviceName string, workDir string, properties utils.JavaProps, args ...string) (*exec.Cmd, error) {
-	cmd := java.Run(properties, args...)
+	cmd := java.Build(properties, args...)
 
 	utils.EnablePgid(cmd)
 

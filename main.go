@@ -85,7 +85,7 @@ func main() {
 	utils.Out("\n\n")
 	utils.Out("Server logs written to: %q", filepath.Join(serverWd, `logs`))
 	utils.Out("Agent logs written to: %q", filepath.Join(agentWd, `logs`))
-	utils.OpenUrlInBrowser(gocd.BrowserUrl())
+	utils.OpenUrlInBrowser(gocd.WEB_URL)
 
 	utils.Out(`Press Ctrl-C to exit`)
 
