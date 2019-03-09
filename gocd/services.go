@@ -1,6 +1,7 @@
 package gocd
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -9,6 +10,20 @@ import (
 
 	"github.com/gocd-private/gocd-trial-launcher/utils"
 )
+
+const (
+	HTTP_PORT  = 8153
+	HTTPS_PORT = 8154
+	BIND_HOST  = `localhost`
+)
+
+func BrowserUrl() string {
+	return fmt.Sprintf(`http://%s:%d`, BIND_HOST, HTTP_PORT)
+}
+
+func AgentRegistrationUrl() string {
+	return fmt.Sprintf(`https://%s:%d/go`, BIND_HOST, HTTPS_PORT)
+}
 
 func StartServer(java *utils.Java, workDir, jar string) (*exec.Cmd, error) {
 	configDir := filepath.Join(workDir, "config")
@@ -46,7 +61,7 @@ func StartAgent(java *utils.Java, workDir, jar string) (*exec.Cmd, error) {
 		"gocd.agent.log.dir":           logDir,
 	}
 
-	return startJavaApp(java, "agent", workDir, props, "-Xmx256m", "-jar", jar, "-serverUrl", "https://localhost:8154/go")
+	return startJavaApp(java, "agent", workDir, props, "-Xmx256m", "-jar", jar, "-serverUrl", AgentRegistrationUrl())
 }
 
 func StopServer(cmd *exec.Cmd) {

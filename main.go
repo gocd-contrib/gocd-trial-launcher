@@ -11,12 +11,6 @@ import (
 	"github.com/gocd-private/gocd-trial-launcher/utils"
 )
 
-const (
-	HTTP_PORT  = 8153
-	HTTPS_PORT = 8154
-	BIND_HOST  = `localhost`
-)
-
 var (
 	baseDir    string = utils.BaseDir()
 	packageDir string = filepath.Join(baseDir, `packages`)
@@ -45,7 +39,7 @@ func cleanup() {
 	gocd.StopServer(serverCmd)
 	gocd.StopAgent(agentCmd)
 
-	utils.Out("Done")
+	utils.Out("Done. Removing this directory will remove all traces of the GoCD test drive from your system.")
 }
 
 func main() {
@@ -61,8 +55,8 @@ func main() {
 		utils.Err("Error executing java binary at [%s].\nIt might be incompatible with your OS.\n\n  Cause: %v\n", java.Executable(), err)
 	}
 
-	if utils.TryConnect(BIND_HOST, HTTP_PORT) || utils.TryConnect(BIND_HOST, HTTPS_PORT) {
-		utils.Die(1, `Both ports %d and %d must be free to run this demo`, HTTP_PORT, HTTPS_PORT)
+	if utils.TryConnect(gocd.BIND_HOST, gocd.HTTP_PORT) || utils.TryConnect(gocd.BIND_HOST, gocd.HTTPS_PORT) {
+		utils.Die(1, `Both ports %d and %d must be free to run this demo`, gocd.HTTP_PORT, gocd.HTTPS_PORT)
 	}
 
 	if err := utils.MkdirP(serverWd, agentWd); err != nil {
@@ -79,7 +73,7 @@ func main() {
 		cleanup()
 	}
 
-	utils.WaitUntilPortAttached(HTTPS_PORT)
+	utils.WaitUntilPortAttached(gocd.HTTPS_PORT)
 
 	agentCmd, err = gocd.StartAgent(java, agentWd, filepath.Join(agntPkgDir, "agent-bootstrapper.jar"))
 
@@ -88,7 +82,10 @@ func main() {
 		cleanup()
 	}
 
-	utils.OpenUrlInBrowser(`https://google.com`)
+	utils.Out("\n\n")
+	utils.Out("Server logs written to: %q", filepath.Join(serverWd, `logs`))
+	utils.Out("Agent logs written to: %q", filepath.Join(agentWd, `logs`))
+	utils.OpenUrlInBrowser(gocd.BrowserUrl())
 
 	utils.Out(`Press Ctrl-C to exit`)
 
