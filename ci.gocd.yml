@@ -15,7 +15,8 @@ pipelines:
           elastic_profile_id: ecs-golang-build
           artifacts:
             - build:
-                source: dist/**/*
+                source: dist/
+                dest: dist/
           tasks:
           - exec:
               command: /bin/bash
