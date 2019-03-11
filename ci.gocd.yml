@@ -6,6 +6,9 @@ pipelines:
     materials:
       github:
         git: https://git.gocd.io/git/gocd-contrib/gocd-trial-launcher
+      installers:
+        pipeline: installers
+        stage: dist
 
     stages:
       - build:
@@ -21,3 +24,14 @@ pipelines:
                 - --verbose
                 - --prod
                 - --release=Edge
+      - package:
+          tasks:
+          - fetch:
+              pipeline: installers
+              stage: dist
+              job: dist
+              source: dist/zip/
+              destination: deps/
+          - exec:
+              command: ls
+                - -lR
