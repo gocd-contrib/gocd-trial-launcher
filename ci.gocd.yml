@@ -1,0 +1,23 @@
+---
+format_version: 3
+pipelines:
+  gocd-trial-installer:
+    group: go-cd
+    materials:
+      github:
+        git: https://github.com/gocd-private/gocd-trial-installer
+
+    stages:
+      - build:
+          elastic_profile_id: ecs-golang-build
+          artifacts:
+            - build:
+                source: dist/**/*
+          tasks:
+          - exec:
+              command: /bin/bash
+              arguments:
+                - build.sh
+                - --verbose
+                - --prod
+                - --release=Edge
