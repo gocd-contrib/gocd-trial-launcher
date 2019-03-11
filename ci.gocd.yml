@@ -32,6 +32,12 @@ pipelines:
               job: dist
               source: dist/zip/
               destination: deps/
+          - fetch:
+              stage: build
+              job: build
+              source: dist/
+              destination: dist/
           - exec:
               command: ls
+              arguments:
                 - -lR
