@@ -1,7 +1,7 @@
 package gocd
 
 import (
-	"github.com/gocd-private/gocd-trial-launcher/utils"
+	"github.com/gocd-contrib/gocd-trial-launcher/utils"
 	"github.com/mgutz/ansi"
 )
 

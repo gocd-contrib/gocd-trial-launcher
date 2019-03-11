@@ -5,7 +5,7 @@ pipelines:
     group: go-cd
     materials:
       github:
-        git: https://github.com/gocd-private/gocd-trial-installer
+        git: https://github.com/gocd-contrib/gocd-trial-installer
 
     stages:
       - build:
