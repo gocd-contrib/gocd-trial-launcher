@@ -40,6 +40,6 @@ pipelines:
               source: dist/
               destination: dist/
           - exec:
-              command: ls
+              command: /bin/bash
               arguments:
-                - -lR
+                - package.sh
