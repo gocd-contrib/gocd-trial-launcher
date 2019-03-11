@@ -15,8 +15,8 @@ pipelines:
           elastic_profile_id: ecs-golang-build
           artifacts:
             - build:
-                source: dist/
-                dest: dist/
+                source: dist/**/*
+                destination: dist/
           tasks:
           - exec:
               command: /bin/bash
@@ -26,6 +26,7 @@ pipelines:
                 - --prod
                 - --release=Edge
       - package:
+          elastic_profile_id: ecs-golang-build
           tasks:
           - fetch:
               pipeline: installers
