@@ -2,7 +2,7 @@
 format_version: 3
 pipelines:
   gocd-trial-installer:
-    group: go-cd
+    group: go-cd-contrib
     materials:
       github:
         git: https://github.com/gocd-contrib/gocd-trial-installer
