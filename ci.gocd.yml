@@ -46,6 +46,13 @@ pipelines:
               source: dist/
               destination: dist/
           - exec:
+              command: find
+              arguments:
+                - dist
+                - -type
+                - f
+                - -print
+          - exec:
               command: /bin/bash
               arguments:
                 - package.sh
