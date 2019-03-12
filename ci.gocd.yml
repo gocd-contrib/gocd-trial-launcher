@@ -44,7 +44,6 @@ pipelines:
               stage: build
               job: build
               source: dist/
-              destination: dist/
           - exec:
               command: find
               arguments:
