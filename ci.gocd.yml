@@ -45,13 +45,6 @@ pipelines:
               job: build
               source: dist/
           - exec:
-              command: find
-              arguments:
-                - dist
-                - -type
-                - f
-                - -print
-          - exec:
               command: /bin/bash
               arguments:
                 - package.sh
