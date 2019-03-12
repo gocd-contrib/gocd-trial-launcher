@@ -9,7 +9,9 @@ pipelines:
       installers:
         pipeline: installers
         stage: dist
-
+    environment_variables:
+      GOCD_JRE_URL: https://s3.amazonaws.com/mirrors-archive/local/jdk
+      GOCD_JRE_VERSION: 11.0.2
     stages:
       - build:
           elastic_profile_id: ecs-golang-build
