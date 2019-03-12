@@ -27,6 +27,10 @@ pipelines:
                 - --release=Edge
       - package:
           elastic_profile_id: ecs-golang-build
+          artifacts:
+            - package:
+                source: installers/*.zip
+                destination: installers/
           tasks:
           - fetch:
               pipeline: installers
