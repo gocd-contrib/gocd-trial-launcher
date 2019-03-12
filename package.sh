@@ -19,7 +19,7 @@ function main {
   echo "Checking for required artifacts..."
 
   # First, resolve the server zip archive
-  local server_zip=$(find deps/zip -type f -name 'go-server-*.zip' -print -quit)
+  local server_zip=$(find deps/zip -type f -name 'go-server-*.zip' -print | head -n 1)
 
   if [ -z "$server_zip" -o ! -s "$server_zip" ]; then
     die "Cannot find the go-server zip artifact. Aborting."
