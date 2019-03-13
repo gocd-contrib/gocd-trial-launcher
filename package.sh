@@ -109,6 +109,8 @@ function prepare_launcher {
       ;;
   esac
 
+  chmod a+rx "$src" # when getting artifact via the fetchArtifact task, it may lose the executable flag
+
   if [ ! -f "$src" -o ! -s "$src" ]; then
     die "The \`run-gocd\` binary is missing; expected to find it at: ${src}"
   fi
