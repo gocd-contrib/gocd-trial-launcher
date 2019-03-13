@@ -31,7 +31,7 @@ func openUrl(url string) error {
 			Out(`Open your browser to: %s`, url)
 		}
 	case `windows`:
-		return run(`start`, url)
+		return run(`cmd`, `/c`, `start`, url)
 	default:
 		Out(`Open your browser to: %s`, url)
 	}
