@@ -2,10 +2,12 @@
 
 set -e
 
-rm -f run-gocd
-rm -rf dist
+PROGNAME="run-gocd"
 
-RELEASE="UNSPECIFIED"
+rm -f "$PROGNAME"
+rm -rf dist meta
+
+RELEASE="X.x.x"
 
 for arg in $@; do
   case $arg in
@@ -35,6 +37,22 @@ for arg in $@; do
   esac
 done
 
+RELEASE="${RELEASE}-${GO_PIPELINE_LABEL:-localbuild}"
+
+function ldflags {
+  local _os="${1:-$(go env GOOS)}"
+  local _arch="${2:-$(go env GOARCH)}"
+
+  local flags="-X main.Version=${RELEASE} -X main.GitCommit=${GIT_COMMIT} -X main.Platform=${_arch}-${_os}"
+
+  # embed Info.plist
+  if [ "darwin" = "$_os" ]; then
+    flags="${flags} -linkmode external -extldflags \"-sectcreate __TEXT __info_plist meta/Info.plist\""
+  fi
+
+  echo "$flags"
+}
+
 echo "Fetching dependencies"
 go get -d $extra_flags ./...
 
@@ -53,6 +71,29 @@ else
   GIT_COMMIT="unknown"
 fi
 
+mkdir -p meta
+cat <<INFOPLIST > meta/Info.plist
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<plist version="1.0">
+  <dict>
+    <key>CFBundleName</key>
+    <string>${PROGNAME}</string>
+    <key>CFBundleShortVersionString</key>
+    <string>${RELEASE}</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>English</string>
+    <key>CFBundleVersion</key>
+    <string>${RELEASE}</string>
+    <key>CFBundleIdentifier</key>
+    <string>org.gocd.testdrive.launcher</string>
+    <key>NSHumanReadableCopyright</key>
+    <string>${PROGNAME} ${RELEASE}. Copyright ThoughtWorks Inc., (c) 2000-2019</string>
+  </dict>
+</plist>
+INFOPLIST
+
 if [[ "true" = "$multiplatform" ]]; then
   platforms=(
     darwin/amd64
@@ -60,14 +101,14 @@ if [[ "true" = "$multiplatform" ]]; then
     windows/amd64
   )
 
-  echo "Release: $RELEASE, Revision: $GIT_COMMIT"
+  echo "Release: ${RELEASE}, Revision: ${GIT_COMMIT}"
 
   for plt in "${platforms[@]}"; do
-    mkdir -p "dist/$plt"
+    mkdir -p "dist/${plt}"
     arr=(${plt//\// })
     _os="${arr[0]}"
     _arch="${arr[1]}"
-    name="run-gocd"
+    name="$PROGNAME"
 
     if [[ "windows" = "${_os}" ]]; then
       name="$name.exe"
@@ -77,15 +118,12 @@ if [[ "true" = "$multiplatform" ]]; then
 
     GOOS="${_os}" GOARCH="${_arch}" go build \
       -o "dist/${plt}/${name}" \
-      -ldflags "-X main.Version=$RELEASE -X main.GitCommit=$GIT_COMMIT -X main.Platform=$_arch-$_os" \
+      -ldflags "$(ldflags "$_os" "$_arch")" \
       main.go
   done
 else
-  _arch=$(go env GOARCH)
-  _os=$(go env GOOS)
-
   go build \
-    -ldflags "-X main.Version=X.x.x-devbuild -X main.GitCommit=$GIT_COMMIT -X main.Platform=$_arch-$_os" \
-    -o run-gocd \
+    -ldflags "$(ldflags)" \
+    -o "$PROGNAME" \
     main.go
 fi
