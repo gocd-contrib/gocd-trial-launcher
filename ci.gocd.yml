@@ -48,3 +48,6 @@ pipelines:
               command: /bin/bash
               arguments:
                 - package.sh
+                - osx
+                - linux
+                - windows

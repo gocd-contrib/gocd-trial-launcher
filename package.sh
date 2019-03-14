@@ -121,33 +121,18 @@ function prepare_launcher {
 
   case "$plt" in
     windows)
-      local wrapper="${top_level_dir}/run-me.cmd"
-      cat <<WINCMD > "$wrapper"
-cmd /c gocd\run-gocd.exe
-
-WINCMD
+      cp includes/run-me.cmd "$top_level_dir"
+      chmod a+rx "${top_level_dir}/run-me.cmd"
+      ;;
+    osx)
+      cp includes/run-me.sh "${top_level_dir}/run-me.command"
+      chmod a+rx "${top_level_dir}/run-me.command"
       ;;
     *)
-      local wrapper="${top_level_dir}/run-me.sh"
-      cat <<NIXCMD > "$wrapper"
-#!/bin/bash
-
-set -e
-
-cd "\$(dirname "\$0")"
-chmod a+rx gocd/run-gocd
-
-gocd/run-gocd
-
-NIXCMD
+      cp includes/run-me.sh "$top_level_dir"
+      chmod a+rx "${top_level_dir}/run-me.sh"
       ;;
   esac
-
-  chmod a+rx "$wrapper"
-
-  if [ "osx" = "$plt" ]; then
-    mv "$wrapper" "${top_level_dir}/run-me.command"
-  fi
 }
 
 # Unpacks the downloaded OS-specific JDK, trims it down to a JRE, and puts
