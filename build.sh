@@ -5,7 +5,7 @@ set -e
 PROGNAME="run-gocd"
 
 rm -f "$PROGNAME"
-rm -rf dist meta
+rm -rf dist
 
 RELEASE="X.x.x"
 
@@ -43,14 +43,7 @@ function ldflags {
   local _os="${1:-$(go env GOOS)}"
   local _arch="${2:-$(go env GOARCH)}"
 
-  local flags="-X main.Version=${RELEASE} -X main.GitCommit=${GIT_COMMIT} -X main.Platform=${_arch}-${_os}"
-
-  # embed Info.plist
-  if [ "darwin" = "$_os" ]; then
-    flags="${flags} -linkmode external -extldflags \"-sectcreate __TEXT __info_plist meta/Info.plist\""
-  fi
-
-  echo "$flags"
+  echo "-X main.Version=${RELEASE} -X main.GitCommit=${GIT_COMMIT} -X main.Platform=${_arch}-${_os}"
 }
 
 echo "Fetching dependencies"
@@ -59,7 +52,7 @@ go get -d $extra_flags ./...
 echo "Fetching any windows-specific dependencies"
 GOOS="windows" go get -d $extra_flags ./... # get any windows-specific deps as well
 
-if [[ "true" = "$skip" ]]; then
+if [ "true" = "$skip" ]; then
   echo "Skipping tests"
 else
    go test $extra_flags ./...
@@ -71,30 +64,7 @@ else
   GIT_COMMIT="unknown"
 fi
 
-mkdir -p meta
-cat <<INFOPLIST > meta/Info.plist
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<plist version="1.0">
-  <dict>
-    <key>CFBundleName</key>
-    <string>${PROGNAME}</string>
-    <key>CFBundleShortVersionString</key>
-    <string>${RELEASE}</string>
-    <key>CFBundleInfoDictionaryVersion</key>
-    <string>6.0</string>
-    <key>CFBundleDevelopmentRegion</key>
-    <string>English</string>
-    <key>CFBundleVersion</key>
-    <string>${RELEASE}</string>
-    <key>CFBundleIdentifier</key>
-    <string>org.gocd.testdrive.launcher</string>
-    <key>NSHumanReadableCopyright</key>
-    <string>${PROGNAME} ${RELEASE}. Copyright ThoughtWorks Inc., (c) 2000-2019</string>
-  </dict>
-</plist>
-INFOPLIST
-
-if [[ "true" = "$multiplatform" ]]; then
+if [ "true" = "$multiplatform" ]; then
   platforms=(
     darwin/amd64
     linux/amd64
@@ -110,7 +80,7 @@ if [[ "true" = "$multiplatform" ]]; then
     _arch="${arr[1]}"
     name="$PROGNAME"
 
-    if [[ "windows" = "${_os}" ]]; then
+    if [ "windows" = "${_os}" ]; then
       name="$name.exe"
     fi
 
