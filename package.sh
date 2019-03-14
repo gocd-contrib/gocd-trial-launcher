@@ -47,14 +47,14 @@ function main {
     echo "Assembling installer for platform: ${plt}"
 
     local dest_dir="${SCRATCH_DIR}/installers/${plt}/gocd-${GOCD_VERSION}"
-    mkdir -p "${dest_dir}/packages"
+    mkdir -p "${dest_dir}/gocd/packages"
 
     fetch_jre "$plt"
-    prepare_jre "$plt" "${dest_dir}/packages/jre"
-    prepare_server "${dest_dir}/packages/go-server"
-    prepare_agent "${dest_dir}/packages/go-agent"
+    prepare_jre "$plt" "${dest_dir}/gocd/packages/jre"
+    prepare_server "${dest_dir}/gocd/packages/go-server"
+    prepare_agent "${dest_dir}/gocd/packages/go-agent"
 
-    prepare_launcher "$plt" "$dest_dir"
+    prepare_launcher "$plt" "${dest_dir}/gocd"
 
     package_installer "$dest_dir" "$INSTALLERS_DIR"
 
@@ -116,6 +116,38 @@ function prepare_launcher {
   fi
 
   ln -f "$src" "${dest}/"
+
+  local top_level_dir="$(dirname "$dest")"
+
+  case "$plt" in
+    windows)
+      local wrapper="${top_level_dir}/run-me.cmd"
+      cat <<WINCMD > "$wrapper"
+cmd /c gocd\run-gocd.exe
+
+WINCMD
+      ;;
+    *)
+      local wrapper="${top_level_dir}/run-me.sh"
+      cat <<NIXCMD > "$wrapper"
+#!/bin/bash
+
+set -e
+
+cd "\$(dirname "\$0")"
+chmod a+rx gocd/run-gocd
+
+gocd/run-gocd
+
+NIXCMD
+      ;;
+  esac
+
+  chmod a+rx "$wrapper"
+
+  if [ "osx" = "$plt" ]; then
+    mv "$wrapper" "${top_level_dir}/run-me.command"
+  fi
 }
 
 # Unpacks the downloaded OS-specific JDK, trims it down to a JRE, and puts
@@ -258,4 +290,4 @@ function unpack_to {
   esac
 }
 
-main osx linux windows
+main $@
