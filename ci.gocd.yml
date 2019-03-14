@@ -31,7 +31,7 @@ pipelines:
           elastic_profile_id: ecs-golang-build
           artifacts:
             - build:
-                source: installers/*.zip
+                source: installers/*
                 destination: installers/
           tasks:
           - fetch:

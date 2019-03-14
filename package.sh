@@ -76,14 +76,17 @@ function package_installer {
   local name="$(basename "$1")"
   local src_dir="$(dirname "$1")"
   local plt="$(basename "$src_dir")"
-  local wd="$(pwd)"
-  local archive_name="$2/${name}-${plt}.zip"
 
-  mkdir -p "$(dirname "${wd}/${archive_name}")"
+  local wd="$2"
+  mkdir -p "$wd"
 
-  echo "  * Packaging ${archive_name}... [src: $1]"
+  local abs_wd="$(cd "$wd" && pwd)"
+  local archive_name="${name}-${plt}.zip"
 
-  (cd "$src_dir" && zip -qr "${wd}/${archive_name}" "${name}")
+
+  echo "  * Packaging ${wd}/${archive_name}... [src: $1]"
+
+  (cd "$src_dir" && zip -qr "${abs_wd}/${archive_name}" "${name}" && cd "$abs_wd" && sha256sum -b "$archive_name" > "${archive_name}.sha256")
 }
 
 # Resolves the correct launcher for the specified OS/platform
