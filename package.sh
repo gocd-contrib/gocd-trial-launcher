@@ -47,14 +47,14 @@ function main {
     echo "Assembling installer for platform: ${plt}"
 
     local dest_dir="${SCRATCH_DIR}/installers/${plt}/gocd-${GOCD_VERSION}"
-    mkdir -p "${dest_dir}/gocd/packages"
+    mkdir -p "${dest_dir}/packages"
 
     fetch_jre "$plt"
-    prepare_jre "$plt" "${dest_dir}/gocd/packages/jre"
-    prepare_server "${dest_dir}/gocd/packages/go-server"
-    prepare_agent "${dest_dir}/gocd/packages/go-agent"
+    prepare_jre "$plt" "${dest_dir}/packages/jre"
+    prepare_server "${dest_dir}/packages/go-server"
+    prepare_agent "${dest_dir}/packages/go-agent"
 
-    prepare_launcher "$plt" "${dest_dir}/gocd"
+    prepare_launcher "$plt" "$dest_dir"
 
     package_installer "$dest_dir" "$INSTALLERS_DIR"
 
@@ -116,23 +116,6 @@ function prepare_launcher {
   fi
 
   ln -f "$src" "${dest}/"
-
-  local top_level_dir="$(dirname "$dest")"
-
-  case "$plt" in
-    windows)
-      cp includes/run-me.cmd "$top_level_dir"
-      chmod a+rx "${top_level_dir}/run-me.cmd"
-      ;;
-    osx)
-      cp includes/run-me.sh "${top_level_dir}/run-me.command"
-      chmod a+rx "${top_level_dir}/run-me.command"
-      ;;
-    *)
-      cp includes/run-me.sh "$top_level_dir"
-      chmod a+rx "${top_level_dir}/run-me.sh"
-      ;;
-  esac
 }
 
 # Unpacks the downloaded OS-specific JDK, trims it down to a JRE, and puts
