@@ -1,5 +1,9 @@
 ---
 format_version: 3
+environments:
+  internal:
+    pipelines:
+      - gocd-trial-installer
 pipelines:
   gocd-trial-installer:
     group: go-cd-contrib
