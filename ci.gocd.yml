@@ -59,7 +59,7 @@ pipelines:
               - fetch:
                   stage: build
                   job: build
-                  source: dist/darwin/amd64/run-gocd
+                  source: dist/
               - exec:
                   command: /bin/bash
                   arguments:
