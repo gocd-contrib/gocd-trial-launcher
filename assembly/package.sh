@@ -46,7 +46,7 @@ function main {
   for plt in $@; do
     echo "Assembling installer for platform: ${plt}"
 
-    local dest_dir="${SCRATCH_DIR}/installers/${plt}/gocd-${GOCD_VERSION}"
+    local dest_dir="${SCRATCH_DIR}/installers/${plt}/gocd-${GOCD_VERSION}-${GO_PIPELINE_LABEL:-localbuild}"
     mkdir -p "${dest_dir}/packages"
 
     fetch_jre "$plt"
