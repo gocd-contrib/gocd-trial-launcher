@@ -6,6 +6,7 @@ pipelines:
     materials:
       github:
         git: https://git.gocd.io/git/gocd-contrib/gocd-trial-launcher
+        destination: launcher
       installers:
         pipeline: installers
         stage: dist
@@ -35,6 +36,7 @@ pipelines:
                 - --verbose
                 - --prod
                 - --release=Edge
+              working_directory: launcher
       - code-signing:
           secure_variables:
             GOCD_GPG_PASSPHRASE: "AES:7lAutKoRKMuSnh3Sbg9DeQ==:8fhND9w/8AWw6dJhmWpTcCdKSsEcOzriQNiKFZD6XtN+sJvZ65NH/QFXRNiy192+SSTKsbhOrFmw+kAKt5+MH1Erd6H54zJjpSgvJUmsJaQ="
@@ -51,7 +53,7 @@ pipelines:
               - exec:
                   command: /bin/bash
                   arguments:
-                    - codesigning-helpers/osx-codesign.sh
+                    - launcher/codesigning-helpers/osx-codesign.sh
                     - dist/darwin/amd64/run-gocd
       - package:
           elastic_profile_id: ecs-golang-build
@@ -77,3 +79,4 @@ pipelines:
                 - osx
                 - linux
                 - windows
+              working_directory: launcher
