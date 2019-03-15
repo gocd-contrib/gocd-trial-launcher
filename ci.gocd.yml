@@ -91,11 +91,8 @@ pipelines:
                   command: jar
                   arguments:
                     - -cMf
-                    - ..\win.zip
-                    - run-gocd.exe
-                    - -C
-                    - out\win
-                  working_directory: codesigning
+                    - win.zip
+                    - codesigning\out\win\run-gocd.exe
       - package:
           elastic_profile_id: ecs-golang-build
           artifacts:
