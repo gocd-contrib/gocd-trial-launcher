@@ -87,6 +87,15 @@ pipelines:
                   command: call
                   arguments:
                     - launcher\codesigning-helpers\win-codesign.bat
+              - exec:
+                  command: jar
+                  arguments:
+                    - -cMf
+                    - ..\win.zip
+                    - run-gocd.exe
+                    - -C
+                    - out\win
+                  working_directory: codesigning
       - package:
           elastic_profile_id: ecs-golang-build
           artifacts:
