@@ -30,7 +30,10 @@ function main {
 function codesign_binary {
   local binary="$1"
   chmod a+rx "$binary"
+
+  echo "SHA-256 before codesign: $(shasum -a 256 -b "$binary")"
   codesign --force --verify --verbose --sign "Developer ID Application: ThoughtWorks (LL62P32G5C)" "$binary"
+  echo "SHA-256 after codesign: $(shasum -a 256 -b "$binary")"
 }
 
 function unlock_codesign_keychain {
