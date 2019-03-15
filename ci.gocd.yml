@@ -73,6 +73,20 @@ pipelines:
                   arguments:
                     - osx.zip
                     - dist/darwin/amd64/run-gocd
+            win:
+              elastic_profile_id: window-dev-build
+              artifacts:
+                - build:
+                    source: win.zip
+              tasks:
+              - fetch:
+                  stage: build
+                  job: build
+                  source: dist/
+              - exec:
+                  command: call
+                  arguments:
+                    - launcher\codesigning-helpers\win-codesign.bat
       - package:
           elastic_profile_id: ecs-golang-build
           artifacts:
@@ -107,5 +121,5 @@ pipelines:
           - exec:
               command: mv
               arguments:
-                - launcher/dist
+                - launcher/installers
                 - .
