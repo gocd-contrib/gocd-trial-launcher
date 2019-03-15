@@ -94,25 +94,27 @@ pipelines:
               command: ln
               arguments:
                 - -s
-                - dist
-                - launcher/.
+                - ../dist
+                - .
+              working_directory: launcher
           - exec:
               command: mkdir
               arguments:
                 - -p
-                - launcher/deps
+                - deps
+              working_directory: launcher
           - exec:
               command: ln
               arguments:
                 - -s
-                - deps/zip
-                - launcher/deps/
+                - ../deps/zip
+                - deps/.
+              working_directory: launcher
           - exec:
               command: ls
               arguments:
-                - -l
-                - launcher/dist/
-                - launcher/deps/
+                - -lR
+                - launcher
           - exec:
               command: find
               arguments:
