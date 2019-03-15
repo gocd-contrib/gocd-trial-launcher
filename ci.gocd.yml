@@ -106,7 +106,23 @@ pipelines:
               arguments:
                 - -s
                 - deps/zip
-                - launcher/deps/.
+                - launcher/deps/
+          - exec:
+              command: ls
+              arguments:
+                - -l
+                - launcher/dist/
+                - launcher/deps/
+          - exec:
+              command: find
+              arguments:
+                - launcher
+                - -path
+                - .git
+                - -prune
+                - -o
+                - -type
+                - f
           - exec:
               command: /bin/bash
               arguments:
