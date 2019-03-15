@@ -52,6 +52,9 @@ pipelines:
             GOCD_GPG_PASSPHRASE: "AES:7lAutKoRKMuSnh3Sbg9DeQ==:8fhND9w/8AWw6dJhmWpTcCdKSsEcOzriQNiKFZD6XtN+sJvZ65NH/QFXRNiy192+SSTKsbhOrFmw+kAKt5+MH1Erd6H54zJjpSgvJUmsJaQ="
           jobs:
             osx:
+              artifacts:
+                - build:
+                    source: osx.zip
               resources:
                 - mac
                 - signer
@@ -64,6 +67,11 @@ pipelines:
                   command: /bin/bash
                   arguments:
                     - launcher/codesigning-helpers/osx-codesign.sh
+                    - dist/darwin/amd64/run-gocd
+              - exec:
+                  command: zip
+                  arguments:
+                    - osx.zip
                     - dist/darwin/amd64/run-gocd
       - package:
           elastic_profile_id: ecs-golang-build
