@@ -27,6 +27,7 @@ function main {
 
   # Parse the version + build from the server zip archive
   local GOCD_VERSION=$(parse_version_from_server_zip "$server_zip")
+  local BUILD_NUMBER="${GO_PIPELINE_LABEL:-localbuild}"
 
   # Resolve the corresponding agent (i.e., same version + build)
   local agent_zip="deps/zip/go-agent-${GOCD_VERSION}.zip"
@@ -46,7 +47,7 @@ function main {
   for plt in $@; do
     echo "Assembling installer for platform: ${plt}"
 
-    local dest_dir="${SCRATCH_DIR}/installers/${plt}/gocd-${GOCD_VERSION}-${GO_PIPELINE_LABEL:-localbuild}"
+    local dest_dir="${SCRATCH_DIR}/installers/${plt}/gocd-${GOCD_VERSION}-${BUILD_NUMBER}"
     mkdir -p "${dest_dir}/packages"
 
     fetch_jre "$plt"
@@ -57,6 +58,11 @@ function main {
     prepare_launcher "$plt" "$dest_dir"
 
     package_installer "$dest_dir" "$INSTALLERS_DIR"
+
+    # write version metadata to pass on to subsequent stages
+    mkdir -p meta
+    echo "$GOCD_VERSION" > meta/GOCD_VERSION
+    echo "$BUILD_NUMBER" > meta/BUILD_NUMBER
 
     echo "Done."
     echo ""
