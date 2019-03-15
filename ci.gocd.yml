@@ -97,6 +97,17 @@ pipelines:
                 - dist
                 - launcher/.
           - exec:
+              command: mkdir
+              arguments:
+                - -p
+                - launcher/deps
+          - exec:
+              command: ln
+              arguments:
+                - -s
+                - deps/zip
+                - launcher/deps/.
+          - exec:
               command: /bin/bash
               arguments:
                 - package.sh
