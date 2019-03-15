@@ -91,40 +91,11 @@ pipelines:
               job: build
               source: dist/
           - exec:
-              command: ln
+              command: mv
               arguments:
-                - -s
-                - ../dist
-                - .
-              working_directory: launcher
-          - exec:
-              command: mkdir
-              arguments:
-                - -p
+                - dist
                 - deps
-              working_directory: launcher
-          - exec:
-              command: ln
-              arguments:
-                - -s
-                - ../deps/zip
-                - deps/.
-              working_directory: launcher
-          - exec:
-              command: ls
-              arguments:
-                - -lR
-                - launcher
-          - exec:
-              command: find
-              arguments:
-                - launcher
-                - -path
-                - .git
-                - -prune
-                - -o
-                - -type
-                - f
+                - launcher/
           - exec:
               command: /bin/bash
               arguments:
@@ -133,3 +104,8 @@ pipelines:
                 - linux
                 - windows
               working_directory: launcher
+          - exec:
+              command: mv
+              arguments:
+                - launcher/dist
+                - .
