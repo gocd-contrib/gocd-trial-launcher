@@ -9,6 +9,14 @@ pipelines:
       installers:
         pipeline: installers
         stage: dist
+      codesigning:
+        git: https://github.com/gocd/codesigning
+        destination: codesigning
+      signing-keys:
+        svn: https://github.com/gocd-private/signing-keys/trunk
+        username: gocd-ci-user
+        encrypted_password: "AES:taOvOCaXsoVwzIi+xIGLdA==:GSfhZ6KKt6MXKp/wdYYoyBQKKzbTiyDa+35kDgkEIOF75s9lzerGInbqbUM7nUKc"
+        destination: signing-keys
     environment_variables:
       GOCD_JRE_URL: https://s3.amazonaws.com/mirrors-archive/local/jdk
       GOCD_JRE_VERSION: 11.0.2
@@ -27,6 +35,24 @@ pipelines:
                 - --verbose
                 - --prod
                 - --release=Edge
+      - code-signing:
+          secure_variables:
+            GOCD_GPG_PASSPHRASE: "AES:7lAutKoRKMuSnh3Sbg9DeQ==:8fhND9w/8AWw6dJhmWpTcCdKSsEcOzriQNiKFZD6XtN+sJvZ65NH/QFXRNiy192+SSTKsbhOrFmw+kAKt5+MH1Erd6H54zJjpSgvJUmsJaQ="
+          jobs:
+            osx:
+              resources:
+                - mac
+                - signer
+              tasks:
+              - fetch:
+                  stage: build
+                  job: build
+                  source: dist/darwin/amd64/run-gocd
+              - exec:
+                  command: /bin/bash
+                  arguments:
+                    - codesigning-helpers/osx-codesign.sh
+                    - dist/darwin/amd64/run-gocd
       - package:
           elastic_profile_id: ecs-golang-build
           artifacts:
