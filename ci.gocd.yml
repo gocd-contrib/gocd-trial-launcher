@@ -3,17 +3,17 @@ format_version: 3
 environments:
   internal:
     pipelines:
-      - gocd-trial-installer
+      - gocd-trial-launcher
+      - gocd-trial-installers
 pipelines:
-  gocd-trial-installer:
+  gocd-trial-launcher:
     group: go-cd-contrib
     materials:
       github:
         git: https://git.gocd.io/git/gocd-contrib/gocd-trial-launcher
+        blacklist:
+          - assembly/**/*
         destination: launcher
-      installers:
-        pipeline: installers
-        stage: dist
       codesigning:
         git: https://github.com/gocd/codesigning
         destination: codesigning
@@ -22,9 +22,6 @@ pipelines:
         username: gocd-ci-user
         encrypted_password: "AES:taOvOCaXsoVwzIi+xIGLdA==:GSfhZ6KKt6MXKp/wdYYoyBQKKzbTiyDa+35kDgkEIOF75s9lzerGInbqbUM7nUKc"
         destination: signing-keys
-    environment_variables:
-      GOCD_JRE_URL: https://s3.amazonaws.com/mirrors-archive/local/jdk
-      GOCD_JRE_VERSION: 11.0.2
     stages:
       - build:
           elastic_profile_id: ecs-golang-build
@@ -48,13 +45,14 @@ pipelines:
                 - ..
               working_directory: launcher
       - code-signing:
+          clean_workspace: yes
           secure_variables:
             GOCD_GPG_PASSPHRASE: "AES:7lAutKoRKMuSnh3Sbg9DeQ==:8fhND9w/8AWw6dJhmWpTcCdKSsEcOzriQNiKFZD6XtN+sJvZ65NH/QFXRNiy192+SSTKsbhOrFmw+kAKt5+MH1Erd6H54zJjpSgvJUmsJaQ="
           jobs:
             osx:
               artifacts:
                 - build:
-                    source: osx.zip
+                    source: osx-launcher.zip
               resources:
                 - mac
                 - signer
@@ -71,13 +69,15 @@ pipelines:
               - exec:
                   command: zip
                   arguments:
-                    - osx.zip
-                    - dist/darwin/amd64/run-gocd
+                    - -r
+                    - ../../../osx-launcher.zip
+                    - run-gocd
+                  working_directory: dist/darwin/amd64
             win:
               elastic_profile_id: window-dev-build
               artifacts:
                 - build:
-                    source: win.zip
+                    source: win-launcher.zip
               tasks:
               - fetch:
                   stage: build
@@ -91,14 +91,76 @@ pipelines:
                   command: jar
                   arguments:
                     - -cMf
-                    - win.zip
-                    - codesigning\out\win\run-gocd.exe
+                    - ..\..\..\win-launcher.zip
+                    - run-gocd.exe
+                  working_directory: codesigning\out\win
+      - bundle:
+          elastic_profile_id: ecs-golang-build
+          artifacts:
+            - build:
+                source: launchers.zip
+          tasks:
+          - fetch:
+              stage: build
+              job: build
+              source: dist/
+          - fetch:
+              stage: code-signing
+              job: osx
+              source: osx-launcher.zip
+              is_file: yes
+          - fetch:
+              stage: code-signing
+              job: win
+              source: win-launcher.zip
+              is_file: yes
+          - exec:
+              command: /bin/bash
+              arguments:
+                - -c
+                - |
+                  echo "Collating codesigned binaries..."
+                  (cd dist/windows/amd64 && unzip -o ../../../win-launcher.zip)
+                  (cd dist/darwin/amd64 && unzip -o ../../../osx-launcher.zip)
+                  sha256sum dist/darwin/amd64/run-gocd
+                  sha256sum dist/linux/amd64/run-gocd
+                  sha256sum dist/windows/amd64/run-gocd.exe
+          - exec:
+              command: zip
+              arguments:
+                - -r
+                - launchers.zip
+                - dist
+  gocd-trial-installers:
+    group: go-cd-contrib
+    materials:
+      github:
+        git: https://git.gocd.io/git/gocd-contrib/gocd-trial-launcher
+        whitelist:
+          - assembly/**/*
+      launcher:
+        pipeline: gocd-trial-launcher
+        stage: bundle
+      installers:
+        pipeline: installers
+        stage: dist
+    environment_variables:
+      GOCD_JRE_URL: https://s3.amazonaws.com/mirrors-archive/local/jdk
+      GOCD_JRE_VERSION: 11.0.2
+      GOCD_UPLOAD_S3_BUCKET: gocd-test-drive-experimental
+    secure_variables:
+      AWS_ACCESS_KEY_ID: AES:k34KQ2Fk6RFy0/RRyr//cA==:dXHAPzyWK4eWyC7Zjvih/epIhL9dRnvINm+gMrF7zBM=
+      AWS_SECRET_ACCESS_KEY: AES:n1DFIAgW5SED7/c4lbLTlQ==:6AzoJCu5Qb8QN4OURCe9z4MCVsp1htOx9aA0VIR8VRHb3QLA0isWKxuFlVdrfO1J
+    stages:
       - package:
           elastic_profile_id: ecs-golang-build
           artifacts:
             - build:
                 source: installers/*
                 destination: installers/
+            - build:
+                source: meta/*
+                destination: meta/
           tasks:
           - fetch:
               pipeline: installers
@@ -107,25 +169,37 @@ pipelines:
               source: dist/zip/
               destination: deps/
           - fetch:
-              stage: build
-              job: build
-              source: dist/
+              pipeline: gocd-trial-launcher
+              stage: bundle
+              job: bundle
+              source: launchers.zip
+              is_file: yes
           - exec:
-              command: mv
+              command: unzip
               arguments:
-                - dist
-                - deps
-                - launcher/
+                - -o
+                - launchers.zip
           - exec:
               command: /bin/bash
               arguments:
-                - package.sh
+                - assembly/package.sh
                 - osx
                 - linux
                 - windows
-              working_directory: launcher
+      - upload:
+          elastic_profile_id: ecs-gocd-dev-build
+          tasks:
+          - fetch:
+              stage: package
+              job: package
+              source: installers
+          - fetch:
+              stage: package
+              job: package
+              source: meta
           - exec:
-              command: mv
+              command: /bin/bash
               arguments:
-                - launcher/installers
-                - .
+                - -c
+                - aws s3 sync --no-progress --acl public-read --cache-control 'max-age=31536000' . s3://${GOCD_UPLOAD_S3_BUCKET}/installers/$(cat ../meta/GOCD_VERSION)/$(cat ../meta/BUILD_NUMBER)/
+              working_directory: installers
