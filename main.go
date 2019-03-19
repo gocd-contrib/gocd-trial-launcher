@@ -1,8 +1,9 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"syscall"
 
@@ -12,43 +13,25 @@ import (
 )
 
 var (
-	baseDir    string = utils.BaseDir()
-	packageDir string = filepath.Join(baseDir, `packages`)
-	dataDir    string = filepath.Join(baseDir, `data`)
-	servPkgDir string = filepath.Join(packageDir, `go-server`)
-	agntPkgDir string = filepath.Join(packageDir, `go-agent`)
-
-	javaHome string      = filepath.Join(packageDir, `jre`)
-	java     *utils.Java = utils.NewJava(javaHome)
-
-	serverWd string = filepath.Join(dataDir, `server`)
-	agentWd  string = filepath.Join(dataDir, `agent`)
-
-	// These should be set by the linker at build time
-	Version   = `devbuild`
-	GitCommit = `unknown`
-	Platform  = `devbuild`
+	dbgFlg = flag.Bool(`X`, false, `Enables debug output`)
+	verFlg = flag.Bool(`version`, false, `Displays versions and exits`)
 )
 
-var agentCmd *exec.Cmd
-var serverCmd *exec.Cmd
-
-func cleanup() {
-	utils.Out("\nEnding GoCD test drive...")
-
-	gocd.StopServer(serverCmd)
-	gocd.StopAgent(agentCmd)
-
-	utils.Out("Done. Removing this directory will remove all traces of the GoCD test drive from your system.")
-}
-
 func main() {
+	flag.Parse()
+	utils.EnableDebug = *dbgFlg
+
+	if *verFlg {
+		utils.Die(0, versionInfo())
+	}
+
 	trap.Trap(cleanup, os.Interrupt, syscall.SIGTERM, syscall.SIGHUP)
 
 	if !utils.AllDirsExist(servPkgDir, agntPkgDir, javaHome) {
 		utils.Die(1, "This GoCD test drive archive is missing 1 or more dependencies in the `packages` directory.\nPlease extract a clean copy from the downloaded archive and try again.")
 	}
 
+	utils.Debug(`Setting JAVA_HOME: %q`, javaHome)
 	os.Setenv(`JAVA_HOME`, javaHome)
 
 	if err := java.Verify(); err != nil {
@@ -92,4 +75,8 @@ func main() {
 	utils.Out("\nPress Ctrl-C to exit")
 
 	trap.WaitForInterrupt()
+}
+
+func versionInfo() string {
+	return fmt.Sprintf(`run-gocd %s %s (%s)`, Version, Platform, GitCommit)
 }

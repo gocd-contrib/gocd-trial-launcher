@@ -43,5 +43,6 @@ func run(command string, args ...string) error {
 	cmd := exec.Command(command, args...)
 	cmd.Env = os.Environ()
 
+	Debug(`Exec: %s with args %v`, cmd.Path, cmd.Args[1:])
 	return cmd.Run()
 }

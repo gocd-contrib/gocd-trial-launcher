@@ -7,6 +7,12 @@ import (
 	colorable "github.com/mattn/go-colorable"
 )
 
+func Debug(f string, t ...interface{}) {
+	if EnableDebug {
+		Out(fmt.Sprintf(`[DEBUG] %s`, f), t...)
+	}
+}
+
 func Out(f string, t ...interface{}) {
 	if len(t) > 0 {
 		fmt.Fprintf(colorable.NewColorableStdout(), f+"\n", t...)

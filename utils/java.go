@@ -8,7 +8,7 @@ import (
 	"runtime"
 )
 
-var Debug bool = false
+var EnableDebug bool = false
 
 type JavaProps map[string]string
 
@@ -31,10 +31,6 @@ func (j *Java) Build(properties JavaProps, args ...string) *exec.Cmd {
 		args = append(properties.Args(), args...)
 	}
 
-	if Debug {
-		Out("%s %v", j.executable, args)
-	}
-
 	cmd := exec.Command(j.executable, args...)
 	cmd.Env = os.Environ() // inherit env
 
@@ -42,13 +38,22 @@ func (j *Java) Build(properties JavaProps, args ...string) *exec.Cmd {
 		cmd.Env = append(cmd.Env, `JAVA_HOME=`+j.Home)
 	}
 
+	Debug(`Using JAVA_HOME: %q`, j.Home)
+	Debug("%s %v", j.executable, args)
+
 	return cmd
 }
 
 func (j *Java) Verify() error {
 	cmd := j.Build(nil, `-version`)
-	cmd.Stdout = ioutil.Discard
-	cmd.Stderr = ioutil.Discard
+
+	if EnableDebug {
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+	} else {
+		cmd.Stdout = ioutil.Discard
+		cmd.Stderr = ioutil.Discard
+	}
 
 	return cmd.Run()
 }

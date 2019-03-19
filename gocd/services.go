@@ -90,6 +90,8 @@ func startJavaApp(java *utils.Java, serviceName string, workDir string, properti
 		return nil, err
 	}
 
+	utils.Debug(`%s PID: %d, writing to pidfile: %q`, serviceName, cmd.Process.Pid, pidFile)
+
 	if err := ioutil.WriteFile(pidFile, []byte(strconv.Itoa(cmd.Process.Pid)), 0644); err != nil {
 		return nil, err
 	}
@@ -98,6 +100,8 @@ func startJavaApp(java *utils.Java, serviceName string, workDir string, properti
 }
 
 func stopApp(cmd *exec.Cmd, pidFile, serviceName string) {
+	utils.Debug(`Ending %s process %d`, serviceName, cmd.Process.Pid)
+
 	if cmd != nil && cmd.ProcessState != nil && !cmd.ProcessState.Exited() {
 		utils.Out("Stopping GoCD %s...", serviceName)
 
@@ -113,6 +117,8 @@ func stopApp(cmd *exec.Cmd, pidFile, serviceName string) {
 	}
 
 	if pidFile != "" && utils.IsExist(pidFile) {
+		utils.Debug(`Removing pidfile: %q`, pidFile)
+
 		if err := os.Remove(pidFile); err != nil {
 			utils.Err("Failed to remove pidfile %s.\n  Cause: %v", pidFile, err)
 		}

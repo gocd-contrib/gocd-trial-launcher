@@ -8,10 +8,14 @@ import (
 )
 
 func TryConnect(host string, port int) bool {
-	if c, err := net.Dial("tcp", host+`:`+strconv.Itoa(port)); err == nil {
+	dest := host + `:` + strconv.Itoa(port)
+	Debug(`Attempting connection to %s`, dest)
+	if c, err := net.Dial("tcp", dest); err == nil {
 		defer c.Close()
+		Debug(`  Success.`)
 		return true
 	} else {
+		Debug(`  Failure.`)
 		return false
 	}
 }

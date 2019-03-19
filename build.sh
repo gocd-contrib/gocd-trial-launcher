@@ -2,6 +2,8 @@
 
 set -e
 
+cd "$(dirname "$0")"
+
 PROGNAME="run-gocd"
 
 rm -f "$PROGNAME"
@@ -86,14 +88,13 @@ if [ "true" = "$multiplatform" ]; then
 
     echo "Building $plt..."
 
+    GOOS="${_os}" go get -d $extra_flags ./...
     GOOS="${_os}" GOARCH="${_arch}" go build \
       -o "dist/${plt}/${name}" \
-      -ldflags "$(ldflags "$_os" "$_arch")" \
-      main.go
+      -ldflags "$(ldflags "$_os" "$_arch")"
   done
 else
   go build \
     -ldflags "$(ldflags)" \
-    -o "$PROGNAME" \
-    main.go
+    -o "$PROGNAME"
 fi
