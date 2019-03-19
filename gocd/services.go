@@ -39,6 +39,10 @@ func StartServer(java *utils.Java, workDir, jar string) (*exec.Cmd, error) {
 		"gocd.redirect.stdout.to.file": logFile,
 	}
 
+	if err := mergeExtraProperties(props, jar); err != nil {
+		return nil, err
+	}
+
 	return startJavaApp(java, "server", workDir, props, "-Xmx1024m", "-jar", jar, "-server")
 }
 
@@ -55,6 +59,10 @@ func StartAgent(java *utils.Java, workDir, jar string) (*exec.Cmd, error) {
 		"java.io.tmpdir":               tmpDir,
 		"gocd.redirect.stdout.to.file": logFile,
 		"gocd.agent.log.dir":           logDir,
+	}
+
+	if err := mergeExtraProperties(props, jar); err != nil {
+		return nil, err
 	}
 
 	return startJavaApp(java, "agent", workDir, props, "-Xmx256m", "-jar", jar, "-serverUrl", AGENT_REGISTER_URL)
@@ -74,6 +82,26 @@ func StopAgent(cmd *exec.Cmd) {
 
 		stopApp(cmd, pidFile, "agent")
 	}
+}
+
+func mergeExtraProperties(props utils.JavaProps, jar string) error {
+	utils.Debug(`Checking for extra properties for app at %q`, jar)
+	path := filepath.Join(filepath.Dir(jar), `extra-props.yaml`)
+
+	if utils.IsFile(path) {
+		utils.Debug(`Reading java properties from %q`, path)
+
+		if extras, err := utils.PropsFromYaml(path); err == nil {
+			for k, v := range extras {
+				utils.Debug(`Found property %s=%s`, k, v)
+				props[k] = v
+			}
+		} else {
+			utils.Debug(`Error while extracting properties from %q: %v`, path, err)
+			return err
+		}
+	}
+	return nil
 }
 
 func startJavaApp(java *utils.Java, serviceName string, workDir string, properties utils.JavaProps, args ...string) (*exec.Cmd, error) {

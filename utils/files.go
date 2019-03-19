@@ -13,45 +13,38 @@ func BaseDir() string {
 
 func CommandExists(command string) bool {
 	Debug(`Searching PATH for command %q`, command)
-	if _, err := exec.LookPath(command); err == nil {
-		Debug(`  Found.`)
-		return true
-	} else {
-		Debug(`  No such command.`)
-		return false
-	}
+
+	_, err := exec.LookPath(command)
+	return debugBoolUsing(err == nil, `  Found.`, `  No such command.`)
 }
 
 func IsExist(path string) bool {
 	Debug(`Checking if file %q exists`, path)
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		Debug(`  No.`)
-		return false
-	}
 
-	Debug(`  Yes.`)
-	return true
+	_, err := os.Stat(path)
+	return debugBool(os.IsNotExist(err))
 }
 
 func IsFile(name string) bool {
+	Debug(`Checking if %q is a file`, name)
+
 	fi, err := os.Stat(name)
-	return err == nil && fi.Mode().IsRegular()
+	return debugBool(err == nil && fi.Mode().IsRegular())
 }
 
 func IsDir(name string) bool {
+	Debug(`Checking if %q is a directory`, name)
+
 	fi, err := os.Stat(name)
-	return err == nil && fi.IsDir()
+	return debugBool(err == nil && fi.IsDir())
 }
 
 func AllDirsExist(paths ...string) bool {
 	if len(paths) > 0 {
 		for _, path := range paths {
-			Debug(`Checking if dir %q exists`, path)
 			if !IsDir(path) {
-				Debug(`  No.`)
 				return false
 			}
-			Debug(`  Yes.`)
 		}
 	}
 	return true
@@ -67,4 +60,17 @@ func MkdirP(paths ...string) error {
 		Debug(`  Ok.`)
 	}
 	return nil
+}
+
+func debugBool(val bool) bool {
+	return debugBoolUsing(val, `  Yes.`, `  No.`)
+}
+
+func debugBoolUsing(val bool, trueStr, falseStr string) bool {
+	if val {
+		Debug(trueStr)
+	} else {
+		Debug(falseStr)
+	}
+	return val
 }

@@ -6,6 +6,8 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+
+	"gopkg.in/yaml.v2"
 )
 
 var EnableDebug bool = false
@@ -24,6 +26,21 @@ func (j *JavaProps) Args() []string {
 type Java struct {
 	Home       string
 	executable string
+}
+
+func PropsFromYaml(yamlFile string) (JavaProps, error) {
+	if file, err := os.Open(yamlFile); err == nil {
+		dcr := yaml.NewDecoder(file)
+		dcr.SetStrict(true)
+		m := make(map[string]string)
+		if err = dcr.Decode(&m); err == nil {
+			return JavaProps(m), nil
+		} else {
+			return nil, err
+		}
+	} else {
+		return nil, err
+	}
 }
 
 func (j *Java) Build(properties JavaProps, args ...string) *exec.Cmd {
