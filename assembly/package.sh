@@ -7,6 +7,7 @@ GOCD_JRE_VERSION="${GOCD_JRE_VERSION:-11.0.2}"
 
 SCRATCH_DIR="scratch"
 INSTALLERS_DIR="installers"
+SCRIPT_DIR="$(cd `dirname "$0"` && pwd)"
 
 # The main entry point; takes an arbitrary list of platforms for which
 # to assemble installers.
@@ -161,6 +162,10 @@ function prepare_server {
 
   # hard-link so we don't need to extract the jar for each platform
   ln "${SCRATCH_DIR}/jars/go-server/go.jar" "$dest/"
+
+  if [ -r "${SCRIPT_DIR}/server-props.yaml" ]; then
+    ln "${SCRIPT_DIR}/server-props.yaml" "${dest}/extra-props.yaml"
+  fi
 }
 
 # Puts the agent uber-jar into the assembly folder
@@ -172,6 +177,10 @@ function prepare_agent {
 
   # hard-link so we don't need to extract the jar for each platform
   ln "${SCRATCH_DIR}/jars/go-agent/agent-bootstrapper.jar" "$dest/"
+
+  if [ -r "${SCRIPT_DIR}/agent-props.yaml" ]; then
+    ln "${SCRIPT_DIR}/agent-props.yaml" "${dest}/extra-props.yaml"
+  fi
 }
 
 # Downloads the JDK package for the specified OS/platform
