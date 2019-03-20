@@ -158,9 +158,6 @@ pipelines:
             - build:
                 source: installers/*
                 destination: installers/
-            - build:
-                source: meta/*
-                destination: meta/
           tasks:
           - fetch:
               pipeline: installers
@@ -193,13 +190,8 @@ pipelines:
               stage: package
               job: package
               source: installers
-          - fetch:
-              stage: package
-              job: package
-              source: meta
           - exec:
-              command: /bin/bash
+              command: ruby
               arguments:
-                - -c
-                - aws s3 sync --no-progress --acl public-read --cache-control 'max-age=31536000' . s3://${GOCD_UPLOAD_S3_BUCKET}/installers/$(cat ../meta/GOCD_VERSION)/$(cat ../meta/BUILD_NUMBER)/
-              working_directory: installers
+                - assembly/upload.rb
+                - installers
