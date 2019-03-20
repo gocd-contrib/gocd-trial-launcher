@@ -12,6 +12,8 @@ def main(args=ARGV)
 
   installers_dir = args.first
 
+  die "installers path #{installers_dir.inspect} must be a directory" unless File.directory?(installers_dir)
+
   FileUtils.rm_rf(File.join(ROOT_DIR, "meta"))
   FileUtils.mkdir_p(File.join(ROOT_DIR, "meta"))
 
