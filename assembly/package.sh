@@ -60,11 +60,6 @@ function main {
 
     package_installer "$dest_dir" "$INSTALLERS_DIR"
 
-    # write version metadata to pass on to subsequent stages
-    mkdir -p meta
-    echo "$GOCD_VERSION" > meta/GOCD_VERSION
-    echo "$BUILD_NUMBER" > meta/BUILD_NUMBER
-
     echo "Done."
     echo ""
   done
@@ -89,7 +84,6 @@ function package_installer {
 
   local abs_wd="$(cd "$wd" && pwd)"
   local archive_name="${name}-${plt}.zip"
-
 
   echo "  * Packaging ${wd}/${archive_name}... [src: $1]"
 
