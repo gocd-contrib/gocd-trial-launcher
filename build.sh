@@ -51,9 +51,6 @@ function ldflags {
 echo "Fetching dependencies"
 go get -d $extra_flags ./...
 
-echo "Fetching any windows-specific dependencies"
-GOOS="windows" go get -d $extra_flags ./... # get any windows-specific deps as well
-
 if [ "true" = "$skip" ]; then
   echo "Skipping tests"
 else
