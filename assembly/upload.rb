@@ -12,6 +12,7 @@ def main(args=ARGV)
 
   installers_dir = args.first
 
+  FileUtils.rm_rf(File.join(ROOT_DIR, "meta"))
   FileUtils.mkdir_p(File.join(ROOT_DIR, "meta"))
 
   rel_info = create_release_metadata(installers_dir)
