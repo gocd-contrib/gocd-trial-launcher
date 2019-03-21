@@ -9,7 +9,7 @@ PROGNAME="run-gocd"
 rm -f "$PROGNAME"
 rm -rf dist
 
-RELEASE="X.x.x"
+RELEASE="${RELEASE:-X.x.x}"
 
 for arg in $@; do
   case $arg in
