@@ -23,7 +23,7 @@ def main(args=ARGV)
 
   write_to_file(File.join(ROOT_DIR, "meta", "latest.json"), rel_info.to_json)
 
-  s3_sync "latest.json", "/", working_dir: File.join(ROOT_DIR, "meta")
+  s3_sync ".", "/", working_dir: File.join(ROOT_DIR, "meta")
 
   info = rel_info[rel_info.keys.first]
   s3_sync ".", "installers/#{info[:version]}/#{info[:build]}/", working_dir: File.join(ROOT_DIR, "installers")
