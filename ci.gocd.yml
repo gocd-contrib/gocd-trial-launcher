@@ -22,6 +22,8 @@ pipelines:
         username: gocd-ci-user
         encrypted_password: "AES:taOvOCaXsoVwzIi+xIGLdA==:GSfhZ6KKt6MXKp/wdYYoyBQKKzbTiyDa+35kDgkEIOF75s9lzerGInbqbUM7nUKc"
         destination: signing-keys
+    environment_variables:
+      RELEASE: 1.0.0
     stages:
       - build:
           elastic_profile_id: ecs-golang-build
@@ -36,7 +38,6 @@ pipelines:
                 - build.sh
                 - --verbose
                 - --prod
-                - --release=Edge
               working_directory: launcher
           - exec:
               command: mv
