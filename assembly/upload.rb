@@ -3,16 +3,21 @@
 require "fileutils"
 require "uri"
 require "json"
+require "optparse"
 
 ROOT_DIR = File.absolute_path(File.join(File.dirname(__FILE__), ".."))
 PKG_RE   = /^gocd-(\d+\.\d+\.\d+)-(\d+)-(\d+|localbuild)-(osx|linux|windows)\.zip$/
 
 def main(args=ARGV)
-  die usage if args.size != 1
+  opts = Opts.new
 
-  installers_dir = args.first
+  opts.parse! args
 
-  die usage unless File.directory?(installers_dir)
+  die opts.usage if ARGV.size != 1
+
+  installers_dir = ARGV.first
+
+  die "#{installers_dir.inspect} must be a directory" unless File.directory?(installers_dir)
 
   rm_rf(File.join(ROOT_DIR, "meta"))
   mkdir_p(File.join(ROOT_DIR, "meta"))
@@ -20,6 +25,12 @@ def main(args=ARGV)
   rel_info = create_release_metadata(installers_dir)
 
   die "No installers found!" unless rel_info.size > 0
+
+  if opts.val(:promote)
+    write_to_file(File.join(ROOT_DIR, "meta", "stable.json"), rel_info.to_json)
+    s3_sync ".", "/", working_dir: File.join(ROOT_DIR, "meta")
+    return
+  end
 
   write_to_file(File.join(ROOT_DIR, "meta", "latest.json"), rel_info.to_json)
 
@@ -40,22 +51,6 @@ def create_release_metadata(src_dir)
 
     memo
   }
-end
-
-def usage
-  %Q{USAGE:
-    File.basename(__FILE__) installers_dir
-
-    Takes exactly 1 argument:
-      installers_dir        # Directory containing installers
-
-    Required Environment Variables:
-      GOCD_UPLOAD_S3_BUCKET # S3 bucket to upload installers; NOT needed during dry-runs
-
-    Environment Toggles:
-      DRY_RUN=y             # Don't actually upload, but ok to touch filesystem (e.g., write metadata)
-      DRY_RUN=super         # Don't upload or touch the filesystem at all
-  }.strip
 end
 
 def write_to_file(path, content)
@@ -121,9 +116,60 @@ def dry_run?
 end
 
 def getenv!(name)
-  dry_run? ? ENV.fetch(name, "dry-run-value-for-#{name.gsub("_", "-")}") : ENV.fetch(name)
+  dry_run? ? ENV.fetch(name, "dry-run-placeholder-value-for-#{hostname_safe_name(name)}") : ENV.fetch(name)
 rescue
-  die "This script require the environment variable #{name.inspect}"
+  die "This script requires the environment variable #{name.inspect}"
+end
+
+def hostname_safe_name(str)
+  str.gsub(/\W/, "-").gsub("_", "-")
+end
+
+class Opts
+  def initialize
+    @options = {}
+    @parser = OptionParser.new do |opts|
+      opts.banner = "Usage: #{File.basename(__FILE__)} [options] installers_dir"
+      opts.separator ""
+      opts.separator "Takes exactly 1 argument:"
+      opts.separator "    installers_dir        # Directory containing installers"
+      opts.separator "Required Environment Variables:"
+      opts.separator "    GOCD_UPLOAD_S3_BUCKET # S3 bucket to upload installers; NOT needed during dry-runs"
+      opts.separator "Environment Toggles:"
+      opts.separator "    DRY_RUN=y             # Don't actually upload, but ok to touch filesystem (e.g., write metadata)"
+      opts.separator "    DRY_RUN=super         # Don't upload or touch the filesystem at all"
+      opts.separator ""
+      opts.separator "Options:"
+
+      opts.on("-r", "--release", "Promote installers to stable") do
+        @options[:promote] = true
+      end
+
+      opts.on_tail("-h", "--help", "Show this message") do
+        puts self.usage
+        exit 0
+      end
+    end
+  end
+
+  def vals
+    @options.inspect
+  end
+
+  def val(key)
+    @options[key.to_sym]
+  end
+
+  def parse!(args)
+    @parser.parse! args
+  rescue OptionParser::InvalidOption => e
+    STDERR.puts "#{e.message}\n\n"
+    die self.usage
+  end
+
+  def usage
+    @parser.to_s
+  end
 end
 
 main
