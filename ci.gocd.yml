@@ -196,3 +196,19 @@ pipelines:
               arguments:
                 - assembly/upload.rb
                 - installers
+      - promote-to-stable:
+          approval: manual
+          jobs:
+            promote:
+              elastic_profile_id: ecs-gocd-dev-build
+              tasks:
+              - fetch:
+                  stage: package
+                  job: package
+                  source: installers
+              - exec:
+                  command: ruby
+                  arguments:
+                    - assembly/upload.rb
+                    - --release
+                    - installers
