@@ -67,13 +67,6 @@ pipelines:
                   arguments:
                     - launcher/codesigning-helpers/osx-codesign.sh
                     - dist/darwin/amd64/run-gocd
-              - exec:
-                  command: zip
-                  arguments:
-                    - -r
-                    - ../../../osx-launcher.zip
-                    - run-gocd
-                  working_directory: dist/darwin/amd64
             win:
               elastic_profile_id: window-dev-build
               artifacts:
@@ -88,13 +81,6 @@ pipelines:
                   command: call
                   arguments:
                     - launcher\codesigning-helpers\win-codesign.bat
-              - exec:
-                  command: jar
-                  arguments:
-                    - -cMf
-                    - ..\..\..\win-launcher.zip
-                    - run-gocd.exe
-                  working_directory: codesigning\out\win
       - bundle:
           elastic_profile_id: ecs-golang-build
           artifacts:
