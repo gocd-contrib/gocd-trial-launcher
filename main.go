@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"net/url"
 	"os"
 	"path/filepath"
 	"syscall"
@@ -70,7 +71,7 @@ func main() {
 	utils.Out("Agent log directory:  %q", filepath.Join(agentWd, `logs`))
 	utils.Out("All data written to:  %q", dataDir)
 
-	utils.OpenUrlInBrowser(gocd.WEB_URL)
+	utils.OpenUrlInBrowser(gocd.WEB_URL + `?redirect_to=` + url.QueryEscape(`https:/tiny.cc/gocd-ux`))
 
 	utils.Out("\nPress Ctrl-C to exit")
 
