@@ -25,6 +25,13 @@ function main {
   codesign_binary "$binary"
 
   lock_codesign_keychain
+
+  package_binary
+}
+
+function package_binary {
+  (cd dist/darwin/amd64 && \
+    zip -r ../../../osx-launcher.zip run-gocd)
 }
 
 function codesign_binary {
