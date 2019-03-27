@@ -28,13 +28,13 @@ def main(args=ARGV)
 
   if opts.val(:promote)
     write_to_file(File.join(ROOT_DIR, "meta", "stable.json"), rel_info.to_json)
-    s3_sync ".", "/", working_dir: File.join(ROOT_DIR, "meta")
+    s3_sync ".", "/", working_dir: File.join(ROOT_DIR, "meta"), cache_ctl: 600
     return
   end
 
   write_to_file(File.join(ROOT_DIR, "meta", "latest.json"), rel_info.to_json)
 
-  s3_sync ".", "/", working_dir: File.join(ROOT_DIR, "meta")
+  s3_sync ".", "/", working_dir: File.join(ROOT_DIR, "meta"), cache_ctl: 600
 
   info = rel_info[rel_info.keys.first]
   s3_sync ".", "installers/#{info[:version]}/#{info[:build]}/", working_dir: File.join(ROOT_DIR, "installers")
@@ -79,9 +79,9 @@ def mkdir_p(dir)
   end
 end
 
-def s3_sync(src, dest, opts={working_dir: Dir.pwd})
+def s3_sync(src, dest, opts={working_dir: Dir.pwd, cache_ctl: 31536000})
   dest = URI.join("s3://#{getenv!("GOCD_UPLOAD_S3_BUCKET")}", dest)
-  cmd = "aws s3 sync --no-progress --acl public-read --cache-control 'max-age=31536000' #{src} #{dest}"
+  cmd = "aws s3 sync --no-progress --acl public-read --cache-control 'max-age=#{opts[:cache_ctl]}' #{src} #{dest}"
 
   if dry_run?
     dry_log "From dir: #{opts[:working_dir]}"
