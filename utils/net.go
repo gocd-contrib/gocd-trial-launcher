@@ -3,9 +3,12 @@ package utils
 import (
 	"fmt"
 	"net"
+	"net/http"
 	"strconv"
 	"time"
 )
+
+var webcl *http.Client
 
 func TryConnect(host string, port int) bool {
 	dest := host + `:` + strconv.Itoa(port)
@@ -20,11 +23,58 @@ func TryConnect(host string, port int) bool {
 	}
 }
 
-func WaitUntilPortAttached(port int) {
-	fmt.Printf(`Waiting for port %d`, port)
+func WaitUntilPortAttached(port int, message string) {
+	if message == "" {
+		fmt.Printf(`Waiting for port %d`, port)
+	} else {
+		fmt.Print(message)
+	}
 
 	for !TryConnect(`localhost`, port) {
 		fmt.Print(`.`)
 		time.Sleep(time.Second)
+	}
+}
+
+func WaitUntilResponseSuccess(url string, message string) {
+	if message == "" {
+		fmt.Printf(`Waiting until %s responds successfully`, url)
+	} else {
+		fmt.Print(message)
+	}
+
+	for !RespondsWithSuccess(url) {
+		fmt.Print(`.`)
+		time.Sleep(time.Second)
+	}
+}
+
+func RespondsWithSuccess(url string) bool {
+	if res, err := client().Get(url); err == nil {
+		Debug(`status %d`+"\n", res.StatusCode)
+		if res.StatusCode < 400 {
+			return true
+		}
+	} else {
+		Debug(`error %v`, err)
+	}
+	return false
+}
+
+func client() *http.Client {
+	if webcl == nil {
+		return &http.Client{
+			Transport: &http.Transport{
+				Dial: (&net.Dialer{
+					Timeout: 30 * time.Second,
+				}).Dial,
+				TLSHandshakeTimeout: 5 * time.Second,
+			},
+			CheckRedirect: func(req *http.Request, via []*http.Request) error {
+				return http.ErrUseLastResponse
+			},
+		}
+	} else {
+		return webcl
 	}
 }

@@ -7,7 +7,8 @@ import (
 )
 
 func OpenUrlInBrowser(url string) {
-	Out("\nGoCD server is available at: %s", url)
+	Out("\nYou may use GoCD server at: %s", url)
+	Out("\nIt may take a few moments to finish initializing.")
 	if err := openUrl(url); err != nil {
 		Out("\nUnable to launch your default browser: %v", err)
 		Out("\nPlease open your browser to: %s", url)

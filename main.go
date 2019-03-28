@@ -57,21 +57,23 @@ func main() {
 		cleanup()
 	}
 
-	utils.WaitUntilPortAttached(gocd.HTTPS_PORT)
+	utils.WaitUntilPortAttached(gocd.HTTPS_PORT, `Waiting for GoCD to bootstrap`)
 
+	utils.Out("\n")
+	utils.Out("Server log directory: %q", filepath.Join(serverWd, `logs`))
+	utils.Out("Agent log directory:  %q", filepath.Join(agentWd, `logs`))
+	utils.Out("All data written to:  %q", dataDir)
+
+	utils.OpenUrlInBrowser(gocd.WEB_URL + `?redirect_to=` + url.QueryEscape(`https:/tiny.cc/gocd-ux`))
+
+	utils.Out("")
+	utils.WaitUntilResponseSuccess(gocd.WEB_URL, `GoCD agent is awaiting communication with GoCD server`)
 	agentCmd, err = gocd.StartAgent(java, agentWd, filepath.Join(agntPkgDir, "agent-bootstrapper.jar"))
 
 	if err != nil {
 		utils.Err("Could not start the GoCD agent.\n  Cause: %v", err)
 		cleanup()
 	}
-
-	utils.Out("")
-	utils.Out("Server log directory: %q", filepath.Join(serverWd, `logs`))
-	utils.Out("Agent log directory:  %q", filepath.Join(agentWd, `logs`))
-	utils.Out("All data written to:  %q", dataDir)
-
-	utils.OpenUrlInBrowser(gocd.WEB_URL + `?redirect_to=` + url.QueryEscape(`https:/tiny.cc/gocd-ux`))
 
 	utils.Out("\nPress Ctrl-C to exit")
 
