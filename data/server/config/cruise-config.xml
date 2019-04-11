@@ -1,0 +1,361 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="119">
+  <server artifactsdir="artifacts" agentAutoRegisterKey="323040d4-f2e4-4b8a-8394-7a2d122054d1" webhookSecret="3d5cd2f5-7fe7-43c0-ba34-7e01678ba8b6" commandRepositoryLocation="default" serverId="60f5f682-5248-4ba9-bb35-72c92841bd75" tokenGenerationKey="8c3c8dc9-08bf-4cd7-ac80-cecb3e7ae86c">
+    <security>
+      <authConfigs>
+        <authConfig id="9cad79b0-4d9e-4a62-829c-eb4d9488062f" pluginId="cd.go.authentication.passwordfile">
+          <property>
+            <key>PasswordFilePath</key>
+            <value>../manual-testing/ant_hg/password.properties</value>
+          </property>
+        </authConfig>
+      </authConfigs>
+      <roles>
+        <role name="xyz" />
+      </roles>
+      <admins>
+        <user>jez</user>
+        <user>admin</user>
+      </admins>
+    </security>
+    <backup emailOnSuccess="true" emailOnFailure="true" />
+  </server>
+  <config-repos>
+    <config-repo pluginId="yaml.config.plugin" id="demo">
+      <git url="https://github.com/gocd-demo/demo-configuration.git" />
+    </config-repo>
+  </config-repos>
+  <pipelines group="Example-Pipelines-Simple">
+    <authorization>
+      <admins>
+        <user>operate</user>
+      </admins>
+    </authorization>
+    <pipeline name="build-and-test">
+      <materials>
+        <git url="https://github.com/gocd-demo/demo-configuration" />
+      </materials>
+      <stage name="build">
+        <jobs>
+          <job name="build">
+            <tasks>
+              <exec command="echo">
+                <arg>"Tasks for building are executed here..."</arg>
+              </exec>
+            </tasks>
+          </job>
+          <job name="package">
+            <tasks>
+              <exec command="echo">
+                <arg>"Tasks for packaging are executed here.."</arg>
+              </exec>
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="test">
+        <jobs>
+          <job name="unit-test">
+            <tasks>
+              <exec command="echo">
+                <arg>"unit tests run here..."</arg>
+              </exec>
+            </tasks>
+          </job>
+          <job name="integration-test">
+            <tasks>
+              <exec command="echo">
+                <arg>"integration tests run here..."</arg>
+                <runif status="passed" />
+              </exec>
+            </tasks>
+          </job>
+          <job name="vulnerability-scan">
+            <tasks>
+              <exec command="echo">
+                <arg>"Tasks for running vulnerability scan executed here..."</arg>
+              </exec>
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+    </pipeline>
+    <pipeline name="deploy-to-staging">
+      <materials>
+        <pipeline pipelineName="build-and-test" stageName="test" materialName="build-artifact" />
+      </materials>
+      <stage name="prepare-deployment">
+        <jobs>
+          <job name="prepare">
+            <tasks>
+              <exec command="echo">
+                <arg>"Tasks to prepare deployment are executed here..."</arg>
+              </exec>
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="promote">
+        <approval type="manual" />
+        <jobs>
+          <job name="deploy">
+            <tasks>
+              <exec command="echo">
+                <arg>"Tasks for deploying to staging are executed here..."</arg>
+                <runif status="passed" />
+              </exec>
+            </tasks>
+          </job>
+          <job name="smoke-test">
+            <tasks>
+              <exec command="echo">
+                <arg>"Tasks for running smoke tests execute here..."</arg>
+              </exec>
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+    </pipeline>
+    <pipeline name="deploy-to-prod">
+      <materials>
+        <pipeline pipelineName="deploy-to-staging" stageName="promote" materialName="staging" />
+      </materials>
+      <stage name="prepare-deployment">
+        <jobs>
+          <job name="prepare">
+            <tasks>
+              <exec command="echo">
+                <arg>"Tasks to prepare deployment are executed here..."</arg>
+              </exec>
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="promote">
+        <approval type="manual" />
+        <jobs>
+          <job name="deploy">
+            <tasks>
+              <exec command="echo">
+                <arg>"Tasks for deploying to staging are executed here..."</arg>
+                <runif status="passed" />
+              </exec>
+            </tasks>
+          </job>
+          <job name="smoke-test">
+            <tasks>
+              <exec command="echo">
+                <arg>"Tasks for running smoke tests execute here..."</arg>
+              </exec>
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+    </pipeline>
+  </pipelines>
+  <pipelines group="Example-Pipelines-Fan-Out-Fan-In">
+    <pipeline name="Build-Test">
+      <materials>
+        <git url="https://github.com/gocd-demo/demo-configuration" />
+      </materials>
+      <stage name="build">
+        <jobs>
+          <job name="build">
+            <tasks>
+              <exec command="echo">
+                <arg>"Tasks for building are executed here..."</arg>
+              </exec>
+            </tasks>
+          </job>
+          <job name="package">
+            <tasks>
+              <exec command="echo">
+                <arg>"Tasks for packaging are executed here.."</arg>
+              </exec>
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="test">
+        <jobs>
+          <job name="unit-test">
+            <tasks>
+              <exec command="echo">
+                <arg>"unit tests run here..."</arg>
+              </exec>
+            </tasks>
+          </job>
+          <job name="integration-test">
+            <tasks>
+              <exec command="echo">
+                <arg>"integration tests run here..."</arg>
+                <runif status="passed" />
+              </exec>
+            </tasks>
+          </job>
+          <job name="vulnerability-scan">
+            <tasks>
+              <exec command="echo">
+                <arg>"Tasks for running vulnerability scan executed here..."</arg>
+              </exec>
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+    </pipeline>
+    <pipeline name="Acceptance">
+      <materials>
+        <pipeline pipelineName="Build-Test" stageName="test" />
+      </materials>
+      <stage name="Main">
+        <jobs>
+          <job name="OOM">
+            <tasks>
+              <exec command="echo">
+                <arg>"Tasks for running out of memory acceptance tests executed here..."</arg>
+              </exec>
+            </tasks>
+          </job>
+          <job name="API">
+            <tasks>
+              <exec command="echo">
+                <arg>"Tasks for running API acceptance tests executed here..."</arg>
+              </exec>
+            </tasks>
+          </job>
+          <job name="Firefox">
+            <tasks>
+              <exec command="echo">
+                <arg>"Tasks for running acceptance tests in Firefox executed here..."</arg>
+              </exec>
+            </tasks>
+          </job>
+          <job name="Chrome">
+            <tasks>
+              <exec command="echo">
+                <arg>"Tasks for running acceptance tests in Chrome executed here..."</arg>
+              </exec>
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="Plugin">
+        <jobs>
+          <job name="Firefox">
+            <tasks>
+              <exec command="echo">
+                <arg>"Tasks for running plugin acceptance tests in Firefox executed here..."</arg>
+              </exec>
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+    </pipeline>
+    <pipeline name="Performance">
+      <materials>
+        <pipeline pipelineName="Build-Test" stageName="test" />
+      </materials>
+      <stage name="Prepare">
+        <jobs>
+          <job name="Application">
+            <tasks>
+              <exec command="echo">
+                <arg>"Tasks for preparing application for performance testing executed here..."</arg>
+              </exec>
+            </tasks>
+          </job>
+          <job name="Database">
+            <tasks>
+              <exec command="echo">
+                <arg>"Tasks for setting up and populating database for performance tests executed here..."</arg>
+              </exec>
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="Benchmark">
+        <jobs>
+          <job name="Login-Loop">
+            <tasks>
+              <exec command="echo">
+                <arg>"Tasks for executing login loop performance test executed here..."</arg>
+              </exec>
+            </tasks>
+          </job>
+          <job name="Add-User-Loop">
+            <tasks>
+              <exec command="echo">
+                <arg>"Tasks for running benchmark on add user loop executed here..."</arg>
+              </exec>
+            </tasks>
+          </job>
+          <job name="Dashboard-Page">
+            <tasks>
+              <exec command="echo">
+                <arg>"Tasks for running performance test of dashboard page are executed here..."</arg>
+              </exec>
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="Teardown">
+        <jobs>
+          <job name="Application">
+            <tasks>
+              <exec command="echo">
+                <arg>"Tasks for shutting down and cleaning up application after performance tests executed here..."</arg>
+              </exec>
+            </tasks>
+          </job>
+          <job name="Database">
+            <tasks>
+              <exec command="echo">
+                <arg>Tasks for shutting down and cleaning up database after performance tests executed here..."</arg>
+              </exec>
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+    </pipeline>
+    <pipeline name="Staging-Deploy">
+      <materials>
+        <pipeline pipelineName="Performance" stageName="Benchmark" />
+        <pipeline pipelineName="Acceptance" stageName="Plugin" />
+      </materials>
+      <stage name="prepare-deployment">
+        <jobs>
+          <job name="prepare">
+            <tasks>
+              <exec command="echo">
+                <arg>"Tasks to prepare deployment are executed here..."</arg>
+              </exec>
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="promote">
+        <approval type="manual" />
+        <jobs>
+          <job name="deploy">
+            <tasks>
+              <exec command="echo">
+                <arg>"Tasks for deploying to staging are executed here..."</arg>
+                <runif status="passed" />
+              </exec>
+            </tasks>
+          </job>
+          <job name="smoke-test">
+            <tasks>
+              <exec command="echo">
+                <arg>"Tasks for running smoke tests execute here..."</arg>
+              </exec>
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+    </pipeline>
+  </pipelines>
+  <agents>
+    <agent hostname="Kieras-MacBook-Pro.local" ipaddress="127.0.0.1" uuid="78591690-c378-418c-ad1d-570452bdec57" />
+  </agents>
+</cruise>
