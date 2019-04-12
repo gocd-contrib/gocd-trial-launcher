@@ -67,7 +67,8 @@ func main() {
 	utils.OpenUrlInBrowser(gocd.WEB_URL + `?redirect_to=` + url.QueryEscape(`http://proto.gocd.org/v.1`))
 
 	utils.Out("")
-	utils.WaitUntilResponseSuccess(gocd.WEB_URL, `GoCD agent is awaiting communication with GoCD server`)
+	utils.WaitUntilResponseSuccess(gocd.WEB_URL, `Wating for the GoCD server to finish initializing`)
+	utils.Out("\nThe GoCD Server has started")
 	agentCmd, err = gocd.StartAgent(java, agentWd, filepath.Join(agntPkgDir, "agent-bootstrapper.jar"))
 
 	if err != nil {
