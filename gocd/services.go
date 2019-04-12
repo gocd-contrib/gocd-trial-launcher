@@ -112,7 +112,7 @@ func startJavaApp(java *utils.Java, serviceName string, workDir string, properti
 	cmd.Dir = workDir
 	pidFile := filepath.Join(workDir, serviceName+".pid")
 
-	utils.Out("\nStarting GoCD %s...", serviceName)
+	utils.Out("\nStarting the GoCD %s...", serviceName)
 
 	if err := cmd.Start(); err != nil {
 		return nil, err
