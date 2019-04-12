@@ -16,6 +16,7 @@ import (
 var (
 	dbgFlg = flag.Bool(`X`, false, `Enables debug output`)
 	verFlg = flag.Bool(`version`, false, `Displays versions and exits`)
+	ansFlg = flag.Bool(`ansitest`, false, `Displays ansi escape sequence tests`)
 )
 
 func main() {
@@ -24,6 +25,10 @@ func main() {
 
 	if *verFlg {
 		utils.Die(0, versionInfo())
+	}
+
+	if *ansFlg {
+		utils.Die(0, ANSI_TEST)
 	}
 
 	trap.Trap(cleanup, os.Interrupt, syscall.SIGTERM, syscall.SIGHUP)
