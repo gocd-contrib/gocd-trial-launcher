@@ -20,30 +20,18 @@
     </security>
     <backup emailOnSuccess="true" emailOnFailure="true" />
   </server>
-  <config-repos>
-    <config-repo pluginId="yaml.config.plugin" id="demo">
-      <git url="https://github.com/gocd-demo/demo-configuration.git" />
-    </config-repo>
-  </config-repos>
   <pipelines group="Example-Pipelines-Simple">
     <authorization>
       <admins>
         <user>operate</user>
       </admins>
     </authorization>
-    <pipeline name="build-and-test">
+    <pipeline name="Build-and-Test-Pipeline">
       <materials>
         <git url="https://github.com/gocd-demo/demo-configuration" />
       </materials>
       <stage name="build">
         <jobs>
-          <job name="build">
-            <tasks>
-              <exec command="echo">
-                <arg>"Tasks for building are executed here..."</arg>
-              </exec>
-            </tasks>
-          </job>
           <job name="package">
             <tasks>
               <exec command="echo">
@@ -51,22 +39,35 @@
               </exec>
             </tasks>
           </job>
+          <job name="generate-docs">
+            <tasks>
+              <exec command="echo">
+                <arg>"Tasks for generating documentation are executed here..."</arg>
+              </exec>
+            </tasks>
+          </job>
         </jobs>
       </stage>
       <stage name="test">
         <jobs>
+          <job name="lint">
+            <tasks>
+              <exec command="echo">
+                <arg>"Tasks for linting are executed here..."</arg>
+              </exec>
+            </tasks>
+          </job>
           <job name="unit-test">
             <tasks>
               <exec command="echo">
-                <arg>"unit tests run here..."</arg>
+                <arg>"Tasks for running unit tests are executed here..."</arg>
               </exec>
             </tasks>
           </job>
           <job name="integration-test">
             <tasks>
               <exec command="echo">
-                <arg>"integration tests run here..."</arg>
-                <runif status="passed" />
+                <arg>"Tasks for running integration tests are executed here..."</arg>
               </exec>
             </tasks>
           </job>
@@ -79,17 +80,55 @@
           </job>
         </jobs>
       </stage>
+      <stage name="deploy-to-integration-env">
+        <jobs>
+          <job name="push-to-server">
+            <tasks>
+              <exec command="echo">
+                <arg>"Tasks for deploying to integration environment are executed here.."</arg>
+              </exec>
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
     </pipeline>
-    <pipeline name="deploy-to-staging">
+    <pipeline name="Deploy-to-Staging">
       <materials>
-        <pipeline pipelineName="build-and-test" stageName="test" materialName="build-artifact" />
+        <pipeline pipelineName="Build-and-Test-Pipeline" stageName="test" materialName="build" />
       </materials>
       <stage name="prepare-deployment">
         <jobs>
-          <job name="prepare">
+          <job name="generate-config">
             <tasks>
               <exec command="echo">
-                <arg>"Tasks to prepare deployment are executed here..."</arg>
+                <arg>"Tasks for generating application configuration for deployment are executed here..."</arg>
+              </exec>
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="promote">
+        <jobs>
+          <job name="deploy">
+            <tasks>
+              <exec command="echo">
+                <arg>"Tasks for deploying to staging are executed here..."</arg>
+              </exec>
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+    </pipeline>
+    <pipeline name="Deploy-to-Production">
+      <materials>
+        <pipeline pipelineName="Deploy-to-Staging" stageName="promote" materialName="staging" />
+      </materials>
+      <stage name="prepare-deployment">
+        <jobs>
+          <job name="generate-config">
+            <tasks>
+              <exec command="echo">
+                <arg>"Tasks for generating application configuration for deployment are executed here..."</arg>
               </exec>
             </tasks>
           </job>
@@ -101,51 +140,7 @@
           <job name="deploy">
             <tasks>
               <exec command="echo">
-                <arg>"Tasks for deploying to staging are executed here..."</arg>
-                <runif status="passed" />
-              </exec>
-            </tasks>
-          </job>
-          <job name="smoke-test">
-            <tasks>
-              <exec command="echo">
-                <arg>"Tasks for running smoke tests execute here..."</arg>
-              </exec>
-            </tasks>
-          </job>
-        </jobs>
-      </stage>
-    </pipeline>
-    <pipeline name="deploy-to-prod">
-      <materials>
-        <pipeline pipelineName="deploy-to-staging" stageName="promote" materialName="staging" />
-      </materials>
-      <stage name="prepare-deployment">
-        <jobs>
-          <job name="prepare">
-            <tasks>
-              <exec command="echo">
-                <arg>"Tasks to prepare deployment are executed here..."</arg>
-              </exec>
-            </tasks>
-          </job>
-        </jobs>
-      </stage>
-      <stage name="promote">
-        <approval type="manual" />
-        <jobs>
-          <job name="deploy">
-            <tasks>
-              <exec command="echo">
-                <arg>"Tasks for deploying to staging are executed here..."</arg>
-                <runif status="passed" />
-              </exec>
-            </tasks>
-          </job>
-          <job name="smoke-test">
-            <tasks>
-              <exec command="echo">
-                <arg>"Tasks for running smoke tests execute here..."</arg>
+                <arg>"Tasks for deploying to production are executed here..."</arg>
               </exec>
             </tasks>
           </job>
@@ -160,13 +155,6 @@
       </materials>
       <stage name="build">
         <jobs>
-          <job name="build">
-            <tasks>
-              <exec command="echo">
-                <arg>"Tasks for building are executed here..."</arg>
-              </exec>
-            </tasks>
-          </job>
           <job name="package">
             <tasks>
               <exec command="echo">
@@ -174,22 +162,35 @@
               </exec>
             </tasks>
           </job>
+          <job name="generate-docs">
+            <tasks>
+              <exec command="echo">
+                <arg>"Tasks for generating documentation are executed here..."</arg>
+              </exec>
+            </tasks>
+          </job>
         </jobs>
       </stage>
       <stage name="test">
         <jobs>
+          <job name="lint">
+            <tasks>
+              <exec command="echo">
+                <arg>"Tasks for linting are executed here..."</arg>
+              </exec>
+            </tasks>
+          </job>
           <job name="unit-test">
             <tasks>
               <exec command="echo">
-                <arg>"unit tests run here..."</arg>
+                <arg>"Tasks for running unit tests are executed here..."</arg>
               </exec>
             </tasks>
           </job>
           <job name="integration-test">
             <tasks>
               <exec command="echo">
-                <arg>"integration tests run here..."</arg>
-                <runif status="passed" />
+                <arg>"Tasks for running integration tests are executed here..."</arg>
               </exec>
             </tasks>
           </job>
@@ -202,27 +203,24 @@
           </job>
         </jobs>
       </stage>
+      <stage name="deploy-to-integration-env">
+        <jobs>
+          <job name="push-to-server">
+            <tasks>
+              <exec command="echo">
+                <arg>"Tasks for deploying to integration environment are executed here.."</arg>
+              </exec>
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
     </pipeline>
-    <pipeline name="Acceptance">
+    <pipeline name="Acceptance-Tests">
       <materials>
         <pipeline pipelineName="Build-Test" stageName="test" />
       </materials>
-      <stage name="Main">
+      <stage name="application">
         <jobs>
-          <job name="OOM">
-            <tasks>
-              <exec command="echo">
-                <arg>"Tasks for running out of memory acceptance tests executed here..."</arg>
-              </exec>
-            </tasks>
-          </job>
-          <job name="API">
-            <tasks>
-              <exec command="echo">
-                <arg>"Tasks for running API acceptance tests executed here..."</arg>
-              </exec>
-            </tasks>
-          </job>
           <job name="Firefox">
             <tasks>
               <exec command="echo">
@@ -237,34 +235,41 @@
               </exec>
             </tasks>
           </job>
-        </jobs>
-      </stage>
-      <stage name="Plugin">
-        <jobs>
-          <job name="Firefox">
+          <job name="MS-Edge">
             <tasks>
               <exec command="echo">
-                <arg>"Tasks for running plugin acceptance tests in Firefox executed here..."</arg>
+                <arg>"Tasks for running acceptance tests in MS-Edge executed here..."</arg>
+              </exec>
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="API">
+        <jobs>
+          <job name="REST-API">
+            <tasks>
+              <exec command="echo">
+                <arg>"Tasks for running acceptance tests for API executed here..."</arg>
               </exec>
             </tasks>
           </job>
         </jobs>
       </stage>
     </pipeline>
-    <pipeline name="Performance">
+    <pipeline name="Performance-Tests">
       <materials>
         <pipeline pipelineName="Build-Test" stageName="test" />
       </materials>
-      <stage name="Prepare">
+      <stage name="prepare">
         <jobs>
-          <job name="Application">
+          <job name="configure-application">
             <tasks>
               <exec command="echo">
                 <arg>"Tasks for preparing application for performance testing executed here..."</arg>
               </exec>
             </tasks>
           </job>
-          <job name="Database">
+          <job name="populate-db">
             <tasks>
               <exec command="echo">
                 <arg>"Tasks for setting up and populating database for performance tests executed here..."</arg>
@@ -273,61 +278,79 @@
           </job>
         </jobs>
       </stage>
-      <stage name="Benchmark">
+      <stage name="warmup">
         <jobs>
-          <job name="Login-Loop">
+          <job name="login-loop">
             <tasks>
               <exec command="echo">
-                <arg>"Tasks for executing login loop performance test executed here..."</arg>
+                <arg>"Tasks for executing login loop executed here..."</arg>
               </exec>
             </tasks>
           </job>
-          <job name="Add-User-Loop">
+          <job name="add-user-loop">
             <tasks>
               <exec command="echo">
-                <arg>"Tasks for running benchmark on add user loop executed here..."</arg>
+                <arg>"Tasks for executing add user loop executed here..."</arg>
               </exec>
             </tasks>
           </job>
-          <job name="Dashboard-Page">
+          <job name="dashboard-page">
             <tasks>
               <exec command="echo">
-                <arg>"Tasks for running performance test of dashboard page are executed here..."</arg>
+                <arg>"Tasks for warming-up dashboard page are executed here..."</arg>
               </exec>
             </tasks>
           </job>
         </jobs>
       </stage>
-      <stage name="Teardown">
+      <stage name="benchmark">
         <jobs>
-          <job name="Application">
+          <job name="load-test">
             <tasks>
               <exec command="echo">
-                <arg>"Tasks for shutting down and cleaning up application after performance tests executed here..."</arg>
+                <arg>"Tasks for running load tests executed here..."</arg>
               </exec>
             </tasks>
           </job>
-          <job name="Database">
+          <job name="stress-test">
             <tasks>
               <exec command="echo">
-                <arg>Tasks for shutting down and cleaning up database after performance tests executed here..."</arg>
+                <arg>"Tasks for running stress tests executed here..."</arg>
+              </exec>
+            </tasks>
+          </job>
+          <job name="spike-test">
+            <tasks>
+              <exec command="echo">
+                <arg>"Tasks for running spike tests executed here..."</arg>
+              </exec>
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="teardown">
+        <jobs>
+          <job name="teardown-perf-server">
+            <tasks>
+              <exec command="echo">
+                <arg>"Tasks for shutting down and cleaning up after performance tests executed here..."</arg>
               </exec>
             </tasks>
           </job>
         </jobs>
       </stage>
     </pipeline>
-    <pipeline name="Staging-Deploy">
+    <pipeline name="Deploy-Staging">
       <materials>
-        <pipeline pipelineName="Performance" stageName="Benchmark" />
-        <pipeline pipelineName="Acceptance" stageName="Plugin" />
+        <pipeline pipelineName="Performance-Tests" stageName="benchmark" />
+        <pipeline pipelineName="Acceptance-Tests" stageName="API" />
       </materials>
       <stage name="prepare-deployment">
         <jobs>
-          <job name="prepare">
+          <job name="generate-config">
             <tasks>
               <exec command="echo">
-                <arg>"Tasks to prepare deployment are executed here..."</arg>
+                <arg>"Tasks for generating application configuration for deployment are executed here..."</arg>
               </exec>
             </tasks>
           </job>
@@ -339,15 +362,7 @@
           <job name="deploy">
             <tasks>
               <exec command="echo">
-                <arg>"Tasks for deploying to staging are executed here..."</arg>
-                <runif status="passed" />
-              </exec>
-            </tasks>
-          </job>
-          <job name="smoke-test">
-            <tasks>
-              <exec command="echo">
-                <arg>"Tasks for running smoke tests execute here..."</arg>
+                <arg>"Tasks for deploying to production are executed here..."</arg>
               </exec>
             </tasks>
           </job>
@@ -355,7 +370,4 @@
       </stage>
     </pipeline>
   </pipelines>
-  <agents>
-    <agent hostname="Kieras-MacBook-Pro.local" ipaddress="127.0.0.1" uuid="78591690-c378-418c-ad1d-570452bdec57" />
-  </agents>
 </cruise>
