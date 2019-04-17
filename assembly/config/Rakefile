@@ -1,0 +1,41 @@
+#!/usr/bin/env ruby
+
+if File.basename($PROGRAM_NAME) != 'rake'
+  require 'shellwords'
+  puts "bundle exec rake -f #{Shellwords.escape($PROGRAM_NAME)} #{Shellwords.shelljoin(ARGV)}"
+  exec "bundle exec rake -f #{Shellwords.escape($PROGRAM_NAME)} #{Shellwords.shelljoin(ARGV)}"
+end
+
+require 'nokogiri'
+
+task :default => [:cleanup_database, :ensure_clean_config]
+
+desc 'Clean sensitive information from database'
+task :cleanup_database => [:remove_server_id_from_database] do
+  sh 'java -cp sql-scripts/h2-1.4.199.jar org.h2.tools.RunScript -url "jdbc:h2:./h2db/cruise" -user sa -script sql-scripts/depersonalize_agents.sql -showResults'
+end
+
+desc 'Remove server ID from database'
+task :remove_server_id_from_database do
+  sh 'java -cp sql-scripts/h2-1.4.199.jar org.h2.tools.RunScript -url "jdbc:h2:./h2db/cruise" -user sa -script sql-scripts/cleanup.sql -showResults'
+end
+
+desc 'Ensure no UUIDs/secrets in config XML'
+task :ensure_clean_config => [:validate_no_security_from_config_xml] do
+  config = Nokogiri::XML(File.read('cruise-config.xml'))
+
+  allowed_attributes_at_server_level = ['artifactsdir', 'commandRepositoryLocation']
+  attributes_at_server_level = config.at_xpath('/cruise/server').attributes
+  extra_attributes_at_server_level = attributes_at_server_level.keys - allowed_attributes_at_server_level
+
+  raise "Found extra attributes at <server/> level in data/config/cruise.config.xml - Allowed attributes are: #{allowed_attributes_at_server_level}. Extra attributes are: #{extra_attributes_at_server_level}" unless extra_attributes_at_server_level.empty?
+
+  raise "Found <agents/> tag in template/data/config/cruise-config.xml. That is not allowed." unless config.at_xpath('/cruise/agents').nil?
+end
+
+desc "Make sure security is turned off in config xml"
+task :validate_no_security_from_config_xml do
+  config = Nokogiri::XML(File.read('cruise-config.xml'))
+
+  raise "Security should not be enabled in this cruise-config file" unless config.at_xpath('/cruise/server/security').nil?
+end
