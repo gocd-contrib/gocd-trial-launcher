@@ -140,7 +140,7 @@ pipelines:
       AWS_SECRET_ACCESS_KEY: AES:n1DFIAgW5SED7/c4lbLTlQ==:6AzoJCu5Qb8QN4OURCe9z4MCVsp1htOx9aA0VIR8VRHb3QLA0isWKxuFlVdrfO1J
     stages:
       - package:
-          elastic_profile_id: ecs-golang-build
+          elastic_profile_id: ecs-gocd-dev-build
           artifacts:
             - build:
                 source: installers/*
@@ -163,6 +163,16 @@ pipelines:
               arguments:
                 - -o
                 - launchers.zip
+          - exec:
+              command: /bin/bash
+              arguments:
+                - -c
+                - |
+                    set -e
+                    cd assembly/config
+                    gem install bundler
+                    bundle
+                    bundle exec rake
           - exec:
               command: /bin/bash
               arguments:
