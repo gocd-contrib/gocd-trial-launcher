@@ -14,6 +14,8 @@ var (
 	servPkgDir string = filepath.Join(packageDir, `go-server`)
 	agntPkgDir string = filepath.Join(packageDir, `go-agent`)
 
+	configZip string = filepath.Join(packageDir, `cfg.zip`)
+
 	javaHome string      = filepath.Join(packageDir, `jre`)
 	java     *utils.Java = utils.NewJava(javaHome)
 

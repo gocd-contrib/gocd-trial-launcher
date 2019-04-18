@@ -48,6 +48,18 @@ func main() {
 		utils.Die(1, `Both ports %d and %d must be free to run this test drive.`, gocd.HTTP_PORT, gocd.HTTPS_PORT)
 	}
 
+	if utils.IsDir(dataDir) {
+		utils.Out("Overriding exisiting local data directory %q", dataDir)
+
+		if err := os.RemoveAll(dataDir); err != nil {
+			utils.Debug("Unable to remove directory %q; please check your permissions:\n  Cause: %v", dataDir, err)
+		}
+	}
+
+	if err := utils.Unzip(configZip, dataDir); err != nil {
+		utils.Debug("Unable to apply configurations. Cause: %v", err)
+	}
+
 	if err := utils.MkdirP(serverWd, agentWd); err != nil {
 		utils.Die(1, "Could not create a local data directory; please check your file permissions:\n  Cause: %v", err)
 	}
