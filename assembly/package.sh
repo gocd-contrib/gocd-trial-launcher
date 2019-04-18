@@ -55,6 +55,7 @@ function main {
     prepare_jre "$plt" "${dest_dir}/packages/jre"
     prepare_server "${dest_dir}/packages/go-server"
     prepare_agent "${dest_dir}/packages/go-agent"
+    prepare_configs "${dest_dir}/packages"
 
     prepare_launcher "$plt" "$dest_dir"
 
@@ -87,7 +88,33 @@ function package_installer {
 
   echo "  * Packaging ${wd}/${archive_name}... [src: $1]"
 
-  (cd "$src_dir" && zip -qr "${abs_wd}/${archive_name}" "${name}" && cd "$abs_wd" && sha256sum -b "$archive_name" > "${archive_name}.sha256")
+  (cd "$src_dir" && zip -qr "${abs_wd}/${archive_name}" "${name}" && cd "$abs_wd" && gen_sha_256 "$archive_name" > "${archive_name}.sha256")
+}
+
+function gen_sha_256 {
+  local payload="$1"
+  if (which sha256sum > /dev/null); then
+    sha256sum -b "$payload"
+  else
+    shasum -a 256 -b "$payload"
+  fi
+}
+
+function prepare_configs {
+  echo "  * Zipping config files..."
+
+  local dest="$(cd "$1" && pwd)" # abs path for zipping
+
+  local wd="${SCRATCH_DIR}/cfg"
+  local server_config_dir="${wd}/data/server/config/"
+  local db_dir="${wd}/data/server/db/h2db"
+
+  mkdir -p "${server_config_dir}"
+  mkdir -p "${db_dir}"
+  cp "assembly/config/cruise-config.xml" "${server_config_dir}"
+  cp "assembly/config/h2db/cruise.h2.db" "${db_dir}"
+
+  (cd $wd && zip -qr "${dest}/cfg.zip" "data")
 }
 
 # Resolves the correct launcher for the specified OS/platform
