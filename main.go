@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"net/url"
 	"os"
 	"path/filepath"
 	"syscall"
@@ -81,7 +80,7 @@ func main() {
 	utils.Out("Agent log directory:  %q", filepath.Join(agentWd, `logs`))
 	utils.Out("All data written to:  %q", dataDir)
 
-	utils.OpenUrlInBrowser(gocd.WEB_URL + `?redirect_to=` + url.QueryEscape(`http://proto.gocd.org/v.1`))
+	utils.OpenUrlInBrowser(gocd.WEB_URL)
 
 	utils.Out("")
 	utils.WaitUntilResponseSuccess(gocd.WEB_URL, `Wating for the GoCD server to finish initializing`)
