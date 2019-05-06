@@ -28,16 +28,16 @@ def main(args=ARGV)
 
   if opts.val(:promote)
     write_to_file(File.join(ROOT_DIR, "meta", "stable.json"), rel_info.to_json)
-    s3_sync ".", "/", working_dir: File.join(ROOT_DIR, "meta"), cache_ctl: 600
+    s3_sync ".", "test-drive", working_dir: File.join(ROOT_DIR, "meta"), cache_ctl: 600
     return
   end
 
   write_to_file(File.join(ROOT_DIR, "meta", "latest.json"), rel_info.to_json)
 
-  s3_sync ".", "/", working_dir: File.join(ROOT_DIR, "meta"), cache_ctl: 600
+  s3_sync ".", "test-drive", working_dir: File.join(ROOT_DIR, "meta"), cache_ctl: 600
 
   info = rel_info[rel_info.keys.first]
-  s3_sync ".", "installers/#{info[:version]}/#{info[:build]}/", working_dir: File.join(ROOT_DIR, "installers")
+  s3_sync ".", "test-drive/installers/#{info[:version]}/#{info[:build]}/", working_dir: File.join(ROOT_DIR, "installers")
 end
 
 def create_release_metadata(src_dir)
