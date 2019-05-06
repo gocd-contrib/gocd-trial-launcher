@@ -50,23 +50,6 @@ pipelines:
           secure_variables:
             GOCD_GPG_PASSPHRASE: "AES:7lAutKoRKMuSnh3Sbg9DeQ==:8fhND9w/8AWw6dJhmWpTcCdKSsEcOzriQNiKFZD6XtN+sJvZ65NH/QFXRNiy192+SSTKsbhOrFmw+kAKt5+MH1Erd6H54zJjpSgvJUmsJaQ="
           jobs:
-            osx:
-              artifacts:
-                - build:
-                    source: osx-launcher.zip
-              resources:
-                - mac
-                - signer
-              tasks:
-              - fetch:
-                  stage: build
-                  job: build
-                  source: dist/
-              - exec:
-                  command: /bin/bash
-                  arguments:
-                    - launcher/codesigning-helpers/osx-codesign.sh
-                    - dist/darwin/amd64/run-gocd
             win:
               elastic_profile_id: window-dev-build
               artifacts:
@@ -93,11 +76,6 @@ pipelines:
               source: dist/
           - fetch:
               stage: code-signing
-              job: osx
-              source: osx-launcher.zip
-              is_file: yes
-          - fetch:
-              stage: code-signing
               job: win
               source: win-launcher.zip
               is_file: yes
@@ -108,7 +86,6 @@ pipelines:
                 - |
                   echo "Collating codesigned binaries..."
                   (cd dist/windows/amd64 && unzip -o ../../../win-launcher.zip)
-                  (cd dist/darwin/amd64 && unzip -o ../../../osx-launcher.zip)
                   sha256sum dist/darwin/amd64/run-gocd
                   sha256sum dist/linux/amd64/run-gocd
                   sha256sum dist/windows/amd64/run-gocd.exe
