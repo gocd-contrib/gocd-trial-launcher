@@ -55,7 +55,7 @@ func main() {
 		}
 	}
 
-	if err := utils.Unzip(configZip, dataDir); err != nil {
+	if err := utils.Unzip(configZip, baseDir); err != nil {
 		utils.Debug("Unable to apply configurations. Cause: %v", err)
 	}
 
