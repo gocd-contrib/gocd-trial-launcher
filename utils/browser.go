@@ -9,7 +9,7 @@ import (
 func OpenUrlInBrowser(url string) {
 	Out("\nIt may take a few moments for the server to fully load.")
 	Out("Once it has loaded you can access the GoCD dashboard and add your first pipeline.")
-	Out("In the meantime, you can read more about GoCD concepts on the server loading page: \n\n\t%s", url)
+	Out("If your browser does not load automatically, please use this URL to go to the GoCD server: \n\n\t%s", url)
 	if err := openUrl(url); err != nil {
 		Out("\nUnable to launch your default browser: %v", err)
 		Out("\nPlease open your browser to: %s", url)
