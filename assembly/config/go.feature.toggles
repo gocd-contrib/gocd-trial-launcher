@@ -1,17 +1,17 @@
 {
-  "version":"1",
-  "toggles":[
+  "version": "1",
+  "toggles": [
     {
-      "key":"new_add_pipeline_flow",
-      "value":true
+      "key": "new_add_pipeline_flow",
+      "value": true
     },
     {
-      "key":"allow_empty_pipeline_groups_dashboard",
-      "value":true
+      "key": "allow_empty_pipeline_groups_dashboard",
+      "value": true
     },
     {
-      "key":"add_pipeline_button_styling",
-      "value":false
+      "key": "add_pipeline_button_styling",
+      "value": true
     }
   ]
 }
