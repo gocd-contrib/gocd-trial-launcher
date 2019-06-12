@@ -12,7 +12,7 @@
     </authorization>
     <pipeline name="Build-and-Test-Pipeline">
       <materials>
-        <git url="https://github.com/gocd-demo/demo-configuration" />
+        <git url="../../data/test-repo" />
       </materials>
       <stage name="build">
         <jobs>
@@ -135,7 +135,7 @@
   <pipelines group="Example-Pipelines-Fan-Out-Fan-In">
     <pipeline name="Build-Test">
       <materials>
-        <git url="https://github.com/gocd-demo/demo-configuration" />
+        <git url="../../data/test-repo" />
       </materials>
       <stage name="build">
         <jobs>

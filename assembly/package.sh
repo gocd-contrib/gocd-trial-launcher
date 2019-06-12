@@ -108,12 +108,16 @@ function prepare_configs {
   local wd="${SCRATCH_DIR}/cfg"
   local server_config_dir="${wd}/data/server/config/"
   local db_dir="${wd}/data/server/db/h2db"
+  local test_repo="${wd}/data/test-repo"
 
   mkdir -p "${server_config_dir}"
   mkdir -p "${db_dir}"
   cp "assembly/config/cruise-config.xml" "${server_config_dir}"
   cp "assembly/config/go.feature.toggles" "${server_config_dir}"
   cp "assembly/config/h2db/cruise.h2.db" "${db_dir}"
+  if [ ! -d "$test_repo" ]; then
+      git clone https://github.com/gocd-demo/demo-configuration.git "${test_repo}"
+  fi
 
   (cd $wd && zip -qr "${dest}/cfg.zip" "data")
 }
