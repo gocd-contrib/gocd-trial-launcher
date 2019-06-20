@@ -183,7 +183,7 @@ function prepare_server {
   echo "  * Bundling server dependency..."
 
   # hard-link so we don't need to extract the jar for each platform
-  ln "${SCRATCH_DIR}/jars/go-server/go.jar" "$dest/"
+  ln "${SCRATCH_DIR}/jars/go-server/lib/go.jar" "$dest/"
 
   if [ -r "${SCRIPT_DIR}/server-props.yaml" ]; then
     ln "${SCRIPT_DIR}/server-props.yaml" "${dest}/extra-props.yaml"
@@ -198,7 +198,7 @@ function prepare_agent {
   echo "  * Bundling agent dependency..."
 
   # hard-link so we don't need to extract the jar for each platform
-  ln "${SCRATCH_DIR}/jars/go-agent/agent-bootstrapper.jar" "$dest/"
+  ln "${SCRATCH_DIR}/jars/go-agent/lib/agent-bootstrapper.jar" "$dest/"
 
   if [ -r "${SCRIPT_DIR}/agent-props.yaml" ]; then
     ln "${SCRIPT_DIR}/agent-props.yaml" "${dest}/extra-props.yaml"
@@ -236,7 +236,7 @@ function unpack_server {
 
   echo "Unpacking GoCD server go.jar..."
 
-  unpack_to "$archive" "$dest" "go-server-${version_only}/go.jar"
+  unpack_to "$archive" "$dest" "go-server-${version_only}/lib/go.jar"
   mv "${dest}/go-server-${version_only}" "${dest}/go-server"
 }
 
@@ -247,7 +247,7 @@ function unpack_agent {
 
   echo "Unpacking GoCD agent agent-bootstrapper.jar..."
 
-  unpack_to "$archive" "$dest" "go-agent-${version_only}/agent-bootstrapper.jar"
+  unpack_to "$archive" "$dest" "go-agent-${version_only}/lib/agent-bootstrapper.jar"
   mv "${dest}/go-agent-${version_only}" "${dest}/go-agent"
 }
 
