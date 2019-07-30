@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="115">
+<cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="124">
   <server artifactsdir="artifacts" commandRepositoryLocation="default">
     <backup emailOnSuccess="true" emailOnFailure="true" />
   </server>
-  <pipelines group="My-Pipelines"/>
+  <pipelines group="My-Pipelines" />
   <pipelines group="Example-Pipelines-Simple">
     <authorization>
       <admins>
