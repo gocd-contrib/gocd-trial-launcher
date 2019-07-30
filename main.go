@@ -16,6 +16,7 @@ var (
 	dbgFlg = flag.Bool(`X`, false, `Enables debug output`)
 	verFlg = flag.Bool(`version`, false, `Displays versions and exits`)
 	ansFlg = flag.Bool(`ansitest`, false, `Displays ansi escape sequence tests`)
+	rstFlg = flag.Bool(`reset`, false, `Resets the test drive data back to its initial state`)
 )
 
 func main() {
@@ -47,11 +48,13 @@ func main() {
 		utils.Die(1, `Both ports %d and %d must be free to run this test drive.`, gocd.HTTP_PORT, gocd.HTTPS_PORT)
 	}
 
-	if utils.IsDir(dataDir) {
-		utils.Out("Overriding exisiting local data directory %q", dataDir)
+	if *rstFlg {
+		if utils.IsDir(dataDir) {
+			utils.Out("Clobbering exisiting local data directory %q", dataDir)
 
-		if err := os.RemoveAll(dataDir); err != nil {
-			utils.Debug("Unable to remove directory %q; please check your permissions:\n  Cause: %v", dataDir, err)
+			if err := os.RemoveAll(dataDir); err != nil {
+				utils.Debug("Unable to remove directory %q; please check your permissions:\n  Cause: %v", dataDir, err)
+			}
 		}
 	}
 
