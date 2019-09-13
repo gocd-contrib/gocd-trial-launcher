@@ -6,6 +6,10 @@
       "value": true
     },
     {
+      "key": "new_pipeline_dropdown",
+      "value": true
+    },
+    {
       "key": "allow_empty_pipeline_groups_dashboard",
       "value": true
     },
