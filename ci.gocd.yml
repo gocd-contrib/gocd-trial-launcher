@@ -112,7 +112,7 @@ pipelines:
         stage: dist
     environment_variables:
       GOCD_JRE_URL: https://s3.amazonaws.com/mirrors-archive/local/jdk
-      GOCD_JRE_VERSION: 11.0.2
+      GOCD_JRE_VERSION: 13.0.2
       GOCD_UPLOAD_S3_BUCKET: downloadgocdio-downloadgocdios3-192sau789jtkh
     secure_variables:
       AWS_ACCESS_KEY_ID: AES:k34KQ2Fk6RFy0/RRyr//cA==:dXHAPzyWK4eWyC7Zjvih/epIhL9dRnvINm+gMrF7zBM=
