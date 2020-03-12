@@ -44,8 +44,8 @@ func main() {
 		utils.Err("Error executing java binary at [%s].\nIt might be incompatible with your OS.\n\n  Cause: %v\n", java.Executable(), err)
 	}
 
-	if utils.TryConnect(gocd.BIND_HOST, gocd.HTTP_PORT) || utils.TryConnect(gocd.BIND_HOST, gocd.HTTPS_PORT) {
-		utils.Die(1, `Both ports %d and %d must be free to run this test drive.`, gocd.HTTP_PORT, gocd.HTTPS_PORT)
+	if utils.TryConnect(gocd.BIND_HOST, gocd.HTTP_PORT) {
+		utils.Die(1, `Port %d must be free to run this test drive.`, gocd.HTTP_PORT)
 	}
 
 	if *rstFlg {
@@ -76,7 +76,7 @@ func main() {
 		cleanup()
 	}
 
-	utils.WaitUntilPortAttached(gocd.HTTPS_PORT, `Waiting for GoCD to bootstrap`)
+	utils.WaitUntilPortAttached(gocd.HTTP_PORT, `Waiting for GoCD to bootstrap`)
 
 	utils.Out("\n")
 	utils.Out("Server log directory: %q", filepath.Join(serverWd, `logs`))

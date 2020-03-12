@@ -11,14 +11,13 @@ import (
 )
 
 const (
-	HTTP_PORT  = 8153
-	HTTPS_PORT = 8154
-	BIND_HOST  = `localhost`
+	HTTP_PORT = 8153
+	BIND_HOST = `localhost`
 )
 
 var (
 	WEB_URL            = `http://` + BIND_HOST + `:` + strconv.Itoa(HTTP_PORT)
-	AGENT_REGISTER_URL = `https://` + BIND_HOST + `:` + strconv.Itoa(HTTPS_PORT) + `/go`
+	AGENT_REGISTER_URL = `http://` + BIND_HOST + `:` + strconv.Itoa(HTTP_PORT) + `/go`
 )
 
 func StartServer(java *utils.Java, workDir, jar string) (*exec.Cmd, error) {
