@@ -1,5 +1,5 @@
 ---
-format_version: 5
+format_version: 9
 environments:
   internal:
     pipelines:
@@ -97,7 +97,7 @@ pipelines:
                 - launchers.zip
                 - dist
   gocd-trial-installers:
-    group: go-cd-contrib
+    group: go-cd
     display_order: -4
     materials:
       github:
