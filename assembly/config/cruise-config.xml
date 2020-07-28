@@ -1,9 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?>
-<cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="124">
-  <server artifactsdir="artifacts" commandRepositoryLocation="default">
-    <backup emailOnSuccess="true" emailOnFailure="true" />
+<?xml version="1.0" encoding="UTF-8"?>
+<cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="136">
+  <server commandRepositoryLocation="default">
+    <backup emailOnSuccess="true" emailOnFailure="true"/>
+    <artifacts>
+      <artifactsDir>artifacts</artifactsDir>
+    </artifacts>
   </server>
-  <pipelines group="My-Pipelines" />
+  <pipelines group="My-Pipelines"/>
   <pipelines group="Example-Pipelines-Simple">
     <authorization>
       <admins>
@@ -12,7 +15,7 @@
     </authorization>
     <pipeline name="Build-and-Test-Pipeline">
       <materials>
-        <git url="../../data/test-repo" />
+        <git url="../../data/test-repo"/>
       </materials>
       <stage name="build">
         <jobs>
@@ -78,7 +81,7 @@
     </pipeline>
     <pipeline name="Deploy-to-Staging">
       <materials>
-        <pipeline pipelineName="Build-and-Test-Pipeline" stageName="test" materialName="build" />
+        <pipeline pipelineName="Build-and-Test-Pipeline" stageName="test" materialName="build"/>
       </materials>
       <stage name="prepare-deployment">
         <jobs>
@@ -105,7 +108,7 @@
     </pipeline>
     <pipeline name="Deploy-to-Production">
       <materials>
-        <pipeline pipelineName="Deploy-to-Staging" stageName="promote" materialName="staging" />
+        <pipeline pipelineName="Deploy-to-Staging" stageName="promote" materialName="staging"/>
       </materials>
       <stage name="prepare-deployment">
         <jobs>
@@ -119,7 +122,7 @@
         </jobs>
       </stage>
       <stage name="promote">
-        <approval type="manual" />
+        <approval type="manual"/>
         <jobs>
           <job name="deploy">
             <tasks>
@@ -135,7 +138,7 @@
   <pipelines group="Example-Pipelines-Fan-Out-Fan-In">
     <pipeline name="Build-Test">
       <materials>
-        <git url="../../data/test-repo" />
+        <git url="../../data/test-repo"/>
       </materials>
       <stage name="build">
         <jobs>
@@ -201,7 +204,7 @@
     </pipeline>
     <pipeline name="Acceptance-Tests">
       <materials>
-        <pipeline pipelineName="Build-Test" stageName="test" />
+        <pipeline pipelineName="Build-Test" stageName="test"/>
       </materials>
       <stage name="application">
         <jobs>
@@ -242,7 +245,7 @@
     </pipeline>
     <pipeline name="Performance-Tests">
       <materials>
-        <pipeline pipelineName="Build-Test" stageName="test" />
+        <pipeline pipelineName="Build-Test" stageName="test"/>
       </materials>
       <stage name="prepare">
         <jobs>
@@ -326,8 +329,8 @@
     </pipeline>
     <pipeline name="Deploy-Staging">
       <materials>
-        <pipeline pipelineName="Performance-Tests" stageName="benchmark" />
-        <pipeline pipelineName="Acceptance-Tests" stageName="API" />
+        <pipeline pipelineName="Performance-Tests" stageName="benchmark"/>
+        <pipeline pipelineName="Acceptance-Tests" stageName="API"/>
       </materials>
       <stage name="prepare-deployment">
         <jobs>
@@ -341,7 +344,7 @@
         </jobs>
       </stage>
       <stage name="promote">
-        <approval type="manual" />
+        <approval type="manual"/>
         <jobs>
           <job name="deploy">
             <tasks>

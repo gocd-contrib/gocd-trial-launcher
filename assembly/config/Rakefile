@@ -12,21 +12,35 @@ task :default => [:cleanup_database, :ensure_clean_config]
 
 desc 'Clean sensitive information from database'
 task :cleanup_database => [:remove_server_id_from_database] do
-  sh 'java -cp sql-scripts/h2-1.4.199.jar org.h2.tools.RunScript -url "jdbc:h2:./h2db/cruise" -user sa -script sql-scripts/depersonalize_agents.sql -showResults'
+  sh 'java -cp sql-scripts/h2-1.4.200.jar org.h2.tools.RunScript -url "jdbc:h2:./h2db/cruise" -user sa -script sql-scripts/depersonalize_agents.sql -showResults'
 end
 
 desc 'Remove server ID from database'
 task :remove_server_id_from_database do
-  sh 'java -cp sql-scripts/h2-1.4.199.jar org.h2.tools.RunScript -url "jdbc:h2:./h2db/cruise" -user sa -script sql-scripts/cleanup.sql -showResults'
+  sh 'java -cp sql-scripts/h2-1.4.200.jar org.h2.tools.RunScript -url "jdbc:h2:./h2db/cruise" -user sa -script sql-scripts/cleanup.sql -showResults'
 end
 
 desc 'Ensure no UUIDs/secrets in config XML'
 task :ensure_clean_config => [:validate_no_security_from_config_xml] do
   config = Nokogiri::XML(File.read('cruise-config.xml'))
+  server_node = config.at_xpath('/cruise/server')
 
-  allowed_attributes_at_server_level = ['artifactsdir', 'commandRepositoryLocation']
-  attributes_at_server_level = config.at_xpath('/cruise/server').attributes
+  allowed_attributes_at_server_level = ['commandRepositoryLocation']
+  attributes_at_server_level = server_node.at_xpath('/cruise/server').attributes
   extra_attributes_at_server_level = attributes_at_server_level.keys - allowed_attributes_at_server_level
+
+  extra_attributes_at_server_level.each do |attr_name|
+    server_node.remove_attribute(attr_name)
+  end
+
+  config.search('/cruise/agents').remove
+
+  File.open('cruise-config.xml', 'w') do |f|
+    f.write(config.to_xml(indent: 2, encoding: 'UTF-8'))
+  end
+
+  # validate changes
+  config = Nokogiri::XML(File.read('cruise-config.xml'))
 
   raise "Found extra attributes at <server/> level in data/config/cruise.config.xml - Allowed attributes are: #{allowed_attributes_at_server_level}. Extra attributes are: #{extra_attributes_at_server_level}" unless extra_attributes_at_server_level.empty?
 
@@ -35,6 +49,14 @@ end
 
 desc "Make sure security is turned off in config xml"
 task :validate_no_security_from_config_xml do
+  config = Nokogiri::XML(File.read('cruise-config.xml'))
+  config.search('/cruise/server/security').remove
+
+  File.open('cruise-config.xml', 'w') do |f|
+    f.write(config.to_xml(indent: 2, encoding: 'UTF-8'))
+  end
+
+  # validate changes
   config = Nokogiri::XML(File.read('cruise-config.xml'))
 
   raise "Security should not be enabled in this cruise-config file" unless config.at_xpath('/cruise/server/security').nil?
