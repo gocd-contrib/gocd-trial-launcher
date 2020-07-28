@@ -98,7 +98,7 @@ pipelines:
                 - dist
   gocd-trial-installers:
     group: go-cd
-    display_order: -4
+    display_order: 5
     materials:
       github:
         git: https://git.gocd.io/git/gocd-contrib/gocd-trial-launcher
