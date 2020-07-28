@@ -114,7 +114,7 @@ function prepare_configs {
   mkdir -p "${db_dir}"
   cp "assembly/config/cruise-config.xml" "${server_config_dir}"
   cp "assembly/config/go.feature.toggles" "${server_config_dir}"
-  cp "assembly/config/h2db/cruise.h2.db" "${db_dir}"
+  cp "assembly/config/h2db/cruise.mv.db" "${db_dir}"
 
   rm -rf "$test_repo"
   git clone --bare https://github.com/gocd-demo/demo-configuration.git "${test_repo}"

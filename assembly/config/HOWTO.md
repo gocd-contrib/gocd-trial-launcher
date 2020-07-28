@@ -33,7 +33,7 @@ Then `rm -rf data/server/db` at this point. Upon starting the server, GoCD will 
 
 ### Copy the configs back to this directory
 
-Don't copy _everything_ -- just what is necessary (which is usually just the `server/config/cruise-config.xml` and `server/db/h2db/cruise.h2.db`). You may or may not need to copy `cruise-config.xml` at all unless you've changed it.
+Don't copy _everything_ -- just what is necessary (which is usually just the `server/config/cruise-config.xml` and `server/db/h2db/cruise.mv.db`). You may or may not need to copy `cruise-config.xml` at all unless you've changed it.
 
 ### Clean `cruise-config.xml`
 
