@@ -2,3 +2,5 @@ cruise.trace.db
 data/
 *.swp
 *.swo
+.idea/
+*.iml
