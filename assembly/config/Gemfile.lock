@@ -6,7 +6,7 @@ GEM
       mini_portile2 (~> 2.6.1)
       racc (~> 1.4)
     racc (1.5.2)
-    rake (13.0.1)
+    rake (13.0.6)
 
 PLATFORMS
   ruby
