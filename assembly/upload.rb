@@ -6,7 +6,7 @@ require "json"
 require "optparse"
 
 ROOT_DIR = File.absolute_path(File.join(File.dirname(__FILE__), ".."))
-PKG_RE   = /^gocd-(\d+\.\d+\.\d+)-(\d+)-(\d+|localbuild)-(osx|linux|windows)\.zip$/
+PKG_RE   = /^gocd-(\d+\.\d+\.\d+)-(\d+)-(\d+|localbuild)-(osx|osx-aarch64|linux|windows)\.zip$/
 
 def main(args=ARGV)
   opts = Opts.new
