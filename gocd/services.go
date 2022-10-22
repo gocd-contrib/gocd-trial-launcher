@@ -42,7 +42,7 @@ func StartServer(java *utils.Java, workDir, jar string) (*exec.Cmd, error) {
 		return nil, err
 	}
 
-	return startJavaApp(java, "server", workDir, props, "-Xmx1024m", "-jar", jar, "-server")
+	return startJavaApp(java, "server", workDir, props, "-Xmx1024m", "--add-opens=java.base/java.lang=ALL-UNNAMED", "--add-opens=java.base/java.util=ALL-UNNAMED", "-jar", jar, "-server")
 }
 
 func StartAgent(java *utils.Java, workDir, jar string) (*exec.Cmd, error) {
