@@ -2,12 +2,13 @@
 
 set -e
 
-GOCD_JRE_URL="${GOCD_JRE_URL:-https://s3.amazonaws.com/mirrors-archive/local/jdk}"
-GOCD_JRE_VERSION="${GOCD_JRE_VERSION:-11.0.2}"
+GOCD_JRE_VERSION="${GOCD_JRE_VERSION:-17.0.4.1+1}"
+IFS='.' read -ra GOCD_JRE_VERSION_PARTS <<< "$GOCD_JRE_VERSION"
+GOCD_JRE_FEATURE=${GOCD_JRE_VERSION_PARTS[0]}
 
 SCRATCH_DIR="scratch"
 INSTALLERS_DIR="installers"
-SCRIPT_DIR="$(cd `dirname "$0"` && pwd)"
+SCRIPT_DIR="$(cd $(dirname "$0") && pwd)"
 
 # The main entry point; takes an arbitrary list of platforms for which
 # to assemble installers.
@@ -168,15 +169,13 @@ function prepare_jre {
   unpack_to "deps/jdk/$(jre_pkg_name "$plt")" "$workdir"
 
   if [ "$plt" = osx ]; then
-    local src="${workdir}/jdk-${GOCD_JRE_VERSION}.jdk/Contents/Home"
+    local src="${workdir}/jdk-${GOCD_JRE_VERSION}-jre/Contents/Home"
   else
-    local src="${workdir}/jdk-${GOCD_JRE_VERSION}"
+    local src="${workdir}/jdk-${GOCD_JRE_VERSION}-jre"
   fi
 
   mv "${src}" "$dest"
   rm -rf "$workdir"
-
-  rm -rf "${dest}/lib/src.zip" "${dest}/jmods" "${dest}/include"
 }
 
 # Puts the server uber-jar into the assembly folder
@@ -220,10 +219,12 @@ function fetch_jre {
   echo "  * Fetching JRE for ${plt}..."
 
   if [ ! -f "${dest}/${jre_pkg}" -o ! -s "${dest}/${jre_pkg}" ]; then # prevent unnecessary downloads during dev
-    local jre_url="${GOCD_JRE_URL}/${jre_pkg}"
+    local jre_url_base="https://github.com/adoptium/temurin${GOCD_JRE_FEATURE}-binaries/releases/download/"
+    local jre_url_directory="jdk-${GOCD_JRE_VERSION/+/%2B}/"
+    local jre_url="${jre_url_base}${jre_url_directory}${jre_pkg}"
     echo "    * Using url: ${jre_url}"
 
-    curl "$jre_url" -o "${dest}/${jre_pkg}"
+    curl -fsSL "$jre_url" -o "${dest}/${jre_pkg}"
   fi
 }
 
@@ -261,8 +262,11 @@ function die {
 }
 
 function jre_pkg_name {
-  local plt="$1"
-  local base_name="openjdk-${GOCD_JRE_VERSION}_${plt}-x64_bin"
+  local update_modifier=$(if [ ${#GOCD_JRE_VERSION_PARTS[@]} ]; then  echo "U"; else echo ""; fi)
+  local jre_version_filesafe=$(echo "${GOCD_JRE_VERSION}" | tr "+" "_")
+  local plt=$(if [ "$1" == "osx" ]; then echo "mac"; else echo "$1"; fi)
+
+  local base_name="OpenJDK${GOCD_JRE_FEATURE}${update_modifier}-jre_x64_${plt}_hotspot_${jre_version_filesafe}"
 
   if [ "$plt" = "windows" ]; then
     echo "${base_name}.zip"
