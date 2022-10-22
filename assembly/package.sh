@@ -135,6 +135,9 @@ function prepare_launcher {
     osx)
       local src="dist/darwin/amd64/run-gocd"
       ;;
+    osx-aarch64)
+      local src="dist/darwin/arm64/run-gocd"
+      ;;
     linux)
       local src="dist/linux/amd64/run-gocd"
       ;;
@@ -168,7 +171,7 @@ function prepare_jre {
 
   unpack_to "deps/jdk/$(jre_pkg_name "$plt")" "$workdir"
 
-  if [ "$plt" = osx ]; then
+  if [[ "$plt" == osx* ]]; then
     local src="${workdir}/jdk-${GOCD_JRE_VERSION}-jre/Contents/Home"
   else
     local src="${workdir}/jdk-${GOCD_JRE_VERSION}-jre"
@@ -264,15 +267,12 @@ function die {
 function jre_pkg_name {
   local update_modifier=$(if [ ${#GOCD_JRE_VERSION_PARTS[@]} ]; then  echo "U"; else echo ""; fi)
   local jre_version_filesafe=$(echo "${GOCD_JRE_VERSION}" | tr "+" "_")
-  local plt=$(if [ "$1" == "osx" ]; then echo "mac"; else echo "$1"; fi)
 
-  local base_name="OpenJDK${GOCD_JRE_FEATURE}${update_modifier}-jre_x64_${plt}_hotspot_${jre_version_filesafe}"
+  local os=$(if [[ "$1" == osx* ]]; then echo "mac"; else echo "$1"; fi)
+  local arch=$(if [[ "$1" == *aarch64 ]]; then echo "aarch64"; else echo "x64"; fi)
+  local ext=$(if [[ "$1" == windows* ]]; then echo ".zip"; else echo ".tar.gz"; fi)
 
-  if [ "$plt" = "windows" ]; then
-    echo "${base_name}.zip"
-  else
-    echo "${base_name}.tar.gz"
-  fi
+  echo "OpenJDK${GOCD_JRE_FEATURE}${update_modifier}-jre_${arch}_${os}_hotspot_${jre_version_filesafe}${ext}"
 }
 
 # Unpacks an archive to a specified directory; smart enough to unpack both
