@@ -110,7 +110,6 @@ pipelines:
         pipeline: installers
         stage: dist
     environment_variables:
-      GOCD_JRE_VERSION: 17.0.4.1+1
       GOCD_UPLOAD_S3_BUCKET: downloadgocdio-downloadgocdios3-192sau789jtkh
     secure_variables:
       AWS_ACCESS_KEY_ID: AES:k34KQ2Fk6RFy0/RRyr//cA==:dXHAPzyWK4eWyC7Zjvih/epIhL9dRnvINm+gMrF7zBM=
