@@ -48,6 +48,8 @@ function ldflags {
   echo "-X main.Version=${RELEASE} -X main.GitCommit=${GIT_COMMIT} -X main.Platform=${_arch}-${_os}"
 }
 
+go version
+
 echo "Fetching dependencies"
 go get -tags netgo -d $extra_flags ./...
 
@@ -79,16 +81,18 @@ if [ "true" = "$multiplatform" ]; then
     _os="${arr[0]}"
     _arch="${arr[1]}"
     name="$PROGNAME"
+    build_tags="netgo"
 
     if [ "windows" = "${_os}" ]; then
       name="$name.exe"
+      build_tags=""
     fi
 
     echo "Building $plt..."
 
-    GOOS="${_os}" go get -tags netgo -d $extra_flags ./...
+    GOOS="${_os}" go get -tags "${build_tags}" -d $extra_flags ./...
     GOOS="${_os}" GOARCH="${_arch}" go build \
-      -tags netgo \
+      -tags "${build_tags}" \
       -a \
       -o "dist/${plt}/${name}" \
       -ldflags "$(ldflags "$_os" "$_arch")"
