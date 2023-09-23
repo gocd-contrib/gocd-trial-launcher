@@ -102,7 +102,6 @@ pipelines:
       github:
         git: https://git.gocd.io/git/gocd-contrib/gocd-trial-launcher
         whitelist:
-          - assembly/*
           - assembly/**/*
       launcher:
         pipeline: gocd-trial-launcher
