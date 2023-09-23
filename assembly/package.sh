@@ -13,7 +13,7 @@ SCRIPT_DIR="$(cd $(dirname "$0") && pwd)"
 # The main entry point; takes an arbitrary list of platforms for which
 # to assemble installers.
 function main {
-  echo "Creating installers for platforms: $@..."
+  echo "Creating installers for platforms: $*..."
 
   rm -rf "$INSTALLERS_DIR" "$SCRATCH_DIR" # clean up from prior runs
   mkdir -p "deps"
