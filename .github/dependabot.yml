@@ -9,6 +9,8 @@ updates:
     directory: /
     schedule:
       interval: "weekly"
+    allow:
+      - dependency-type: "all"
   - package-ecosystem: "bundler"
     directory: "/assembly/config"
     schedule:
