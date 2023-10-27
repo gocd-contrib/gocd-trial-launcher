@@ -66,7 +66,7 @@ function main {
     echo ""
   done
 
-  echo "Cleaning up scratch direcory..."
+  echo "Cleaning up scratch directory..."
 
   rm -rf "$SCRATCH_DIR" # cleanup only on success; we otherwise want to inspect the working dir
 
