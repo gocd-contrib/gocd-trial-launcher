@@ -223,8 +223,7 @@ function fetch_jre {
 
   if [ ! -f "${dest}/${jre_pkg}" -o ! -s "${dest}/${jre_pkg}" ]; then # prevent unnecessary downloads during dev
     local jre_url_base="https://github.com/adoptium/temurin${GOCD_JRE_FEATURE}-binaries/releases/download/"
-    local jre_release_suffix_hack=$(if [[ "$plt" == windows* ]]; then echo ".1"; else echo ""; fi)
-    local jre_url_directory="jdk-${GOCD_JRE_VERSION/+/%2B}${jre_release_suffix_hack}/"
+    local jre_url_directory="jdk-${GOCD_JRE_VERSION/+/%2B}/"
     local jre_url="${jre_url_base}${jre_url_directory}${jre_pkg}"
     echo "    * Using url: ${jre_url}"
 
