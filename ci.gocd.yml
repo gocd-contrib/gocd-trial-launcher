@@ -12,8 +12,6 @@ pipelines:
     materials:
       github:
         git: https://git.gocd.io/git/gocd-contrib/gocd-trial-launcher
-        blacklist:
-          - assembly/**/*
         destination: launcher
       codesigning:
         git: https://github.com/gocd/codesigning
@@ -101,8 +99,6 @@ pipelines:
     materials:
       github:
         git: https://git.gocd.io/git/gocd-contrib/gocd-trial-launcher
-        whitelist:
-          - assembly/**/*
       launcher:
         pipeline: gocd-trial-launcher
         stage: bundle
