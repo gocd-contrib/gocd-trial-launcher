@@ -48,7 +48,7 @@ pipelines:
             GOCD_GPG_PASSPHRASE: "AES:7lAutKoRKMuSnh3Sbg9DeQ==:8fhND9w/8AWw6dJhmWpTcCdKSsEcOzriQNiKFZD6XtN+sJvZ65NH/QFXRNiy192+SSTKsbhOrFmw+kAKt5+MH1Erd6H54zJjpSgvJUmsJaQ="
           jobs:
             win:
-              elastic_profile_id: window-dev-build
+              elastic_profile_id: ecs-gocd-dev-build
               artifacts:
                 - build:
                     source: win-launcher.zip
@@ -58,9 +58,11 @@ pipelines:
                   job: build
                   source: dist/
               - exec:
-                  command: call
+                  command: rake
                   arguments:
-                    - launcher\codesigning-helpers\win-codesign.bat
+                    - --trace
+                    - win:metadata_single_binary[../dist/windows/amd64/run-gocd.exe,../win-launcher.zip]
+                  working_directory: codesigning
       - bundle:
           elastic_profile_id: ecs-golang-build
           artifacts:
