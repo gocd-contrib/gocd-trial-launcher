@@ -38,6 +38,10 @@ def main(args=ARGV)
 
   info = rel_info[rel_info.keys.first]
   s3_sync ".", "test-drive/installers/#{info[:version]}/#{info[:build]}/", working_dir: File.join(ROOT_DIR, "installers")
+
+  if opts.val(:promote)
+    s3_rm "test-drive/installers", exclude: info[:version]
+  end
 end
 
 def create_release_metadata(src_dir)
@@ -92,6 +96,13 @@ def s3_sync(src, dest, opts={working_dir: Dir.pwd, cache_ctl: 31536000})
       die "Failed to upload #{File.absolute_path(src)} to #{dest}" unless system(cmd)
     }
   end
+end
+
+def s3_rm(dest, opts={exclude: '*'})
+  dest = URI.join("s3://#{getenv!("GOCD_UPLOAD_S3_BUCKET")}", dest)
+  cmd = "aws s3 rm #{dest} #{dry_run? ? "--dryrun": ""} --recursive --exclude '#{opts[:exclude]}'"
+
+  die "Failed to clean-up from #{dest} (other than '#{opts[:exclude]}')" unless system(cmd)
 end
 
 def die(msg)
