@@ -40,7 +40,7 @@ def main(args=ARGV)
   s3_sync ".", "test-drive/installers/#{info[:version]}/#{info[:build]}/", working_dir: File.join(ROOT_DIR, "installers")
 
   if opts.val(:promote)
-    s3_rm "test-drive/installers", exclude: info[:version]
+    s3_rm "test-drive/installers", exclude: "#{info[:version]}/*"
   end
 end
 
