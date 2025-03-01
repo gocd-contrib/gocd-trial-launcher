@@ -5,6 +5,7 @@ environments:
     pipelines:
       - gocd-trial-launcher
       - gocd-trial-installers
+      - gocd-trial-installers-stable
 pipelines:
   gocd-trial-launcher:
     group: go-cd-contrib
@@ -16,9 +17,15 @@ pipelines:
       codesigning:
         git: https://github.com/gocd/codesigning
         destination: codesigning
+        ignore:
+          - "**/*.*"
+          - "**/*"
       signing-keys:
         git: https://git.gocd.io/git/gocd/signing-keys
         destination: signing-keys
+        ignore:
+          - "**/*.*"
+          - "**/*"
     environment_variables:
       RELEASE: 1.0.0
     stages:
@@ -83,7 +90,7 @@ pipelines:
               arguments:
                 - -c
                 - |
-                  echo "Collating codesigned binaries..."
+                  echo "Collating code-signed binaries..."
                   (cd dist/windows/amd64 && unzip -o ../../../win-launcher.zip)
                   sha256sum dist/darwin/amd64/run-gocd
                   sha256sum dist/darwin/arm64/run-gocd
@@ -107,11 +114,11 @@ pipelines:
       installers:
         pipeline: installers
         stage: dist
+      regression: # Only build new installers every time main regression tests pass
+        pipeline: regression-SPAs
+        stage: Firefox
     environment_variables:
       GOCD_UPLOAD_S3_BUCKET: downloadgocdio-downloadgocdios3-192sau789jtkh
-    secure_variables:
-      AWS_ACCESS_KEY_ID: AES:k34KQ2Fk6RFy0/RRyr//cA==:dXHAPzyWK4eWyC7Zjvih/epIhL9dRnvINm+gMrF7zBM=
-      AWS_SECRET_ACCESS_KEY: AES:n1DFIAgW5SED7/c4lbLTlQ==:6AzoJCu5Qb8QN4OURCe9z4MCVsp1htOx9aA0VIR8VRHb3QLA0isWKxuFlVdrfO1J
     stages:
       - package:
           elastic_profile_id: ecs-gocd-dev-build
@@ -156,7 +163,7 @@ pipelines:
                 - linux
                 - windows
       - upload:
-          elastic_profile_id: ecs-gocd-dev-build
+          elastic_profile_id: ecs-gocd-dev-build-release-aws-privileged
           tasks:
           - fetch:
               stage: package
@@ -167,19 +174,29 @@ pipelines:
               arguments:
                 - assembly/upload.rb
                 - installers
+  gocd-trial-installers-stable:
+    group: go-cd
+    display_order: 5
+    materials:
+      github:
+        git: https://git.gocd.io/git/gocd-contrib/gocd-trial-launcher
+      publish-stable: # Only release installers for each stable release off the same dependent code
+        pipeline: PublishStableRelease
+        stage: promote-binaries
+    environment_variables:
+      GOCD_UPLOAD_S3_BUCKET: downloadgocdio-downloadgocdios3-192sau789jtkh
+    stages:
       - promote-to-stable:
-          approval: manual
-          jobs:
-            promote:
-              elastic_profile_id: ecs-gocd-dev-build
-              tasks:
-              - fetch:
-                  stage: package
-                  job: package
-                  source: installers
-              - exec:
-                  command: ruby
-                  arguments:
-                    - assembly/upload.rb
-                    - --release
-                    - installers
+          elastic_profile_id: ecs-gocd-dev-build-release-aws-privileged
+          tasks:
+          - fetch:
+              pipeline: gocd-trial-installers
+              stage: package
+              job: package
+              source: installers
+          - exec:
+              command: ruby
+              arguments:
+                - assembly/upload.rb
+                - --release
+                - installers
