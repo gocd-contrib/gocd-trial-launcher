@@ -1,5 +1,5 @@
 ---
-format_version: 9
+format_version: 10
 environments:
   internal:
     pipelines:
@@ -31,24 +31,13 @@ pipelines:
     stages:
       - build:
           elastic_profile_id: ecs-golang-build
+          tasks:
+            - script: ./build.sh --verbose --prod && mv dist ..
+              working_directory: launcher
           artifacts:
             - build:
                 source: dist/**/*
                 destination: dist/
-          tasks:
-          - exec:
-              command: /bin/bash
-              arguments:
-                - build.sh
-                - --verbose
-                - --prod
-              working_directory: launcher
-          - exec:
-              command: mv
-              arguments:
-                - dist
-                - ..
-              working_directory: launcher
       - code-signing:
           clean_workspace: yes
           secure_variables:
@@ -56,52 +45,40 @@ pipelines:
           jobs:
             win:
               elastic_profile_id: ecs-gocd-dev-build
+              tasks:
+                - fetch:
+                    stage: build
+                    job: build
+                    source: dist/
+                - script: rake --trace win:metadata_single_binary[../dist/windows/amd64/run-gocd.exe,../win-launcher.zip]
+                  working_directory: codesigning
               artifacts:
                 - build:
                     source: win-launcher.zip
-              tasks:
-              - fetch:
-                  stage: build
-                  job: build
-                  source: dist/
-              - exec:
-                  command: rake
-                  arguments:
-                    - --trace
-                    - win:metadata_single_binary[../dist/windows/amd64/run-gocd.exe,../win-launcher.zip]
-                  working_directory: codesigning
       - bundle:
           elastic_profile_id: ecs-golang-build
+          tasks:
+            - fetch:
+                stage: build
+                job: build
+                source: dist/
+            - fetch:
+                stage: code-signing
+                job: win
+                source: win-launcher.zip
+                is_file: yes
+            - script: |
+                set -eux
+                echo "Collating code-signed binaries..."
+                (cd dist/windows/amd64 && unzip -o ../../../win-launcher.zip)
+                sha256sum dist/darwin/amd64/run-gocd
+                sha256sum dist/darwin/arm64/run-gocd
+                sha256sum dist/linux/amd64/run-gocd
+                sha256sum dist/windows/amd64/run-gocd.exe
+                zip -r launchers.zip dist
           artifacts:
             - build:
                 source: launchers.zip
-          tasks:
-          - fetch:
-              stage: build
-              job: build
-              source: dist/
-          - fetch:
-              stage: code-signing
-              job: win
-              source: win-launcher.zip
-              is_file: yes
-          - exec:
-              command: /bin/bash
-              arguments:
-                - -c
-                - |
-                  echo "Collating code-signed binaries..."
-                  (cd dist/windows/amd64 && unzip -o ../../../win-launcher.zip)
-                  sha256sum dist/darwin/amd64/run-gocd
-                  sha256sum dist/darwin/arm64/run-gocd
-                  sha256sum dist/linux/amd64/run-gocd
-                  sha256sum dist/windows/amd64/run-gocd.exe
-          - exec:
-              command: zip
-              arguments:
-                - -r
-                - launchers.zip
-                - dist
   gocd-trial-installers:
     group: go-cd
     display_order: 5
@@ -119,58 +96,38 @@ pipelines:
     stages:
       - package:
           elastic_profile_id: ecs-gocd-dev-build
+          tasks:
+            - fetch:
+                pipeline: installers/smoke/regression-SPAs
+                stage: dist
+                job: dist
+                source: dist/zip/
+                destination: deps/
+            - fetch:
+                pipeline: gocd-trial-launcher
+                stage: bundle
+                job: bundle
+                source: launchers.zip
+                is_file: yes
+            - script: |
+                set -eux
+                unzip -o launchers.zip
+                cd assembly/config
+                bundle
+                bundle exec rake
+                ./assembly/package.sh osx osx-aarch64 linux windows
           artifacts:
             - build:
                 source: installers/*
                 destination: installers/
-          tasks:
-          - fetch:
-              pipeline: installers/smoke/regression-SPAs
-              stage: dist
-              job: dist
-              source: dist/zip/
-              destination: deps/
-          - fetch:
-              pipeline: gocd-trial-launcher
-              stage: bundle
-              job: bundle
-              source: launchers.zip
-              is_file: yes
-          - exec:
-              command: unzip
-              arguments:
-                - -o
-                - launchers.zip
-          - exec:
-              command: /bin/bash
-              arguments:
-                - -c
-                - |
-                    set -e
-                    cd assembly/config
-                    gem install bundler
-                    bundle
-                    bundle exec rake
-          - exec:
-              command: /bin/bash
-              arguments:
-                - assembly/package.sh
-                - osx
-                - osx-aarch64
-                - linux
-                - windows
       - upload:
           elastic_profile_id: ecs-gocd-dev-build-release-aws-privileged
           tasks:
-          - fetch:
-              stage: package
-              job: package
-              source: installers
-          - exec:
-              command: ruby
-              arguments:
-                - assembly/upload.rb
-                - installers
+            - fetch:
+                stage: package
+                job: package
+                source: installers
+            - script: ruby assembly/upload.rb installers
   gocd-trial-installers-stable:
     group: go-cd
     display_order: 5
@@ -189,14 +146,9 @@ pipelines:
       - promote-to-stable:
           elastic_profile_id: ecs-gocd-dev-build-release-aws-privileged
           tasks:
-          - fetch:
-              pipeline: gocd-trial-installers
-              stage: package
-              job: package
-              source: installers
-          - exec:
-              command: ruby
-              arguments:
-                - assembly/upload.rb
-                - --release
-                - installers
+            - fetch:
+                pipeline: gocd-trial-installers
+                stage: package
+                job: package
+                source: installers
+            - script: ruby assembly/upload.rb --release installers
