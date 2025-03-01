@@ -113,7 +113,7 @@ pipelines:
                 cd assembly/config
                 bundle
                 bundle exec rake
-                ./assembly/package.sh osx osx-aarch64 linux windows
+            - script: ./assembly/package.sh osx osx-aarch64 linux windows
           artifacts:
             - build:
                 source: installers/*
