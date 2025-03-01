@@ -32,8 +32,7 @@ pipelines:
       - build:
           elastic_profile_id: ecs-golang-build
           tasks:
-            - script: ./build.sh --verbose --prod && mv dist ..
-              working_directory: launcher
+            - script: launcher/build.sh --verbose --prod && mv launcher/dist .
           artifacts:
             - build:
                 source: dist/**/*
@@ -50,8 +49,7 @@ pipelines:
                     stage: build
                     job: build
                     source: dist/
-                - script: rake --trace win:metadata_single_binary[../dist/windows/amd64/run-gocd.exe,../win-launcher.zip]
-                  working_directory: codesigning
+                - script: cd codesigning && rake --trace win:metadata_single_binary[../dist/windows/amd64/run-gocd.exe,../win-launcher.zip]
               artifacts:
                 - build:
                     source: win-launcher.zip
