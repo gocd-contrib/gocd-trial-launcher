@@ -111,9 +111,6 @@ pipelines:
       launcher:
         pipeline: gocd-trial-launcher
         stage: bundle
-      installers:
-        pipeline: installers
-        stage: dist
       regression: # Only build new installers every time main regression tests pass
         pipeline: regression-SPAs
         stage: Firefox
