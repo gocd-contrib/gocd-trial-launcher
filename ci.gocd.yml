@@ -125,7 +125,7 @@ pipelines:
                 destination: installers/
           tasks:
           - fetch:
-              pipeline: installers
+              pipeline: regression-SPAs/smoke/installers
               stage: dist
               job: dist
               source: dist/zip/
