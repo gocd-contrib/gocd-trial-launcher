@@ -180,6 +180,9 @@ pipelines:
     materials:
       github:
         git: https://git.gocd.io/git/gocd-contrib/gocd-trial-launcher
+      trial-installers: # Only release installers for each stable release off the same dependent code
+        pipeline: gocd-trial-installers
+        stage: upload
       publish-stable: # Only release installers for each stable release off the same dependent code
         pipeline: PublishStableRelease
         stage: promote-binaries
