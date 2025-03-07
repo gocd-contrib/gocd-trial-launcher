@@ -20,12 +20,6 @@ pipelines:
         ignore:
           - "**/*.*"
           - "**/*"
-      signing-keys:
-        git: https://github.com/gocd/signing-keys
-        destination: signing-keys
-        ignore:
-          - "**/*.*"
-          - "**/*"
     environment_variables:
       RELEASE: 1.0.0
     stages:
