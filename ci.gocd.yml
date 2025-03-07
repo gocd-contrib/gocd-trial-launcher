@@ -21,7 +21,7 @@ pipelines:
           - "**/*.*"
           - "**/*"
       signing-keys:
-        git: https://git.gocd.io/git/gocd/signing-keys
+        git: https://github.com/gocd/signing-keys
         destination: signing-keys
         ignore:
           - "**/*.*"
