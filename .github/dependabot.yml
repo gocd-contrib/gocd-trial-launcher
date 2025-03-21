@@ -8,10 +8,16 @@ updates:
   - package-ecosystem: gomod
     directory: /
     schedule:
-      interval: "weekly"
+      interval: monthly
     allow:
-      - dependency-type: "all"
-  - package-ecosystem: "bundler"
-    directory: "/assembly/config"
+      - dependency-type: all
+  - package-ecosystem: bundler
+    directory: /assembly/config
     schedule:
-      interval: "weekly"
+      interval: monthly
+    allow:
+      - dependency-type: all
+    groups:
+      ruby-deps:
+        patterns:
+          - *
