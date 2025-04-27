@@ -29,7 +29,7 @@ def main(args=ARGV)
   if opts.val(:promote)
     write_to_file(File.join(ROOT_DIR, "meta", "stable.json"), rel_info.to_json)
     s3_sync ".", "test-drive", working_dir: File.join(ROOT_DIR, "meta"), cache_ctl: 60
-    s3_rm "test-drive/installers", exclude: "#{info[:version]}/*"
+    s3_rm "test-drive/installers", exclude: "#{rel_info[rel_info.keys.first][:version]}/*"
     return
   end
 
