@@ -21,17 +21,6 @@ pipelines:
           elastic_profile_id: ecs-golang-build
           tasks:
             - script: launcher/build.sh --verbose --prod && mv launcher/dist .
-          artifacts:
-            - build:
-                source: dist/**/*
-                destination: dist/
-      - bundle:
-          elastic_profile_id: ecs-golang-build
-          tasks:
-            - fetch:
-                stage: build
-                job: build
-                source: dist/
             - script: |
                 set -eux
                 echo "Collating binaries..."
@@ -51,7 +40,7 @@ pipelines:
         git: https://git.gocd.io/git/gocd-contrib/gocd-trial-launcher
       launcher:
         pipeline: gocd-trial-launcher
-        stage: bundle
+        stage: build
       regression: # Only build new installers every time main regression tests pass
         pipeline: regression-SPAs
         stage: Firefox
@@ -69,8 +58,8 @@ pipelines:
                 destination: deps/
             - fetch:
                 pipeline: gocd-trial-launcher
-                stage: bundle
-                job: bundle
+                stage: build
+                job: build
                 source: launchers.zip
                 is_file: yes
             - script: |
