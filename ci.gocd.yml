@@ -17,9 +17,6 @@ pipelines:
       codesigning:
         git: https://github.com/gocd/codesigning
         destination: codesigning
-        ignore:
-          - "**/*.*"
-          - "**/*"
     environment_variables:
       RELEASE: 1.0.0
     stages:
