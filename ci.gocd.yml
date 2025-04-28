@@ -21,7 +21,7 @@ pipelines:
           tasks:
             - script: |
                 set -eux
-                build.sh --verbose --prod
+                ./build.sh --verbose --prod
                 echo "Collating binaries..."
                 sha256sum dist/darwin/amd64/run-gocd
                 sha256sum dist/darwin/arm64/run-gocd
