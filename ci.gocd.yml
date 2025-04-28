@@ -14,9 +14,6 @@ pipelines:
       github:
         git: https://git.gocd.io/git/gocd-contrib/gocd-trial-launcher
         destination: launcher
-      codesigning:
-        git: https://github.com/gocd/codesigning
-        destination: codesigning
     environment_variables:
       RELEASE: 1.0.0
     stages:
@@ -28,22 +25,6 @@ pipelines:
             - build:
                 source: dist/**/*
                 destination: dist/
-      - code-signing:
-          clean_workspace: yes
-          secure_variables:
-            GOCD_GPG_PASSPHRASE: "AES:7lAutKoRKMuSnh3Sbg9DeQ==:8fhND9w/8AWw6dJhmWpTcCdKSsEcOzriQNiKFZD6XtN+sJvZ65NH/QFXRNiy192+SSTKsbhOrFmw+kAKt5+MH1Erd6H54zJjpSgvJUmsJaQ="
-          jobs:
-            win:
-              elastic_profile_id: ecs-gocd-dev-build
-              tasks:
-                - fetch:
-                    stage: build
-                    job: build
-                    source: dist/
-                - script: cd codesigning && rake --trace win:metadata_single_binary[../dist/windows/amd64/run-gocd.exe,../win-launcher.zip]
-              artifacts:
-                - build:
-                    source: win-launcher.zip
       - bundle:
           elastic_profile_id: ecs-golang-build
           tasks:
@@ -51,15 +32,9 @@ pipelines:
                 stage: build
                 job: build
                 source: dist/
-            - fetch:
-                stage: code-signing
-                job: win
-                source: win-launcher.zip
-                is_file: yes
             - script: |
                 set -eux
-                echo "Collating code-signed binaries..."
-                (cd dist/windows/amd64 && unzip -o ../../../win-launcher.zip)
+                echo "Collating binaries..."
                 sha256sum dist/darwin/amd64/run-gocd
                 sha256sum dist/darwin/arm64/run-gocd
                 sha256sum dist/linux/amd64/run-gocd
