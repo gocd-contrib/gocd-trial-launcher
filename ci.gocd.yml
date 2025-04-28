@@ -13,7 +13,6 @@ pipelines:
     materials:
       github:
         git: https://git.gocd.io/git/gocd-contrib/gocd-trial-launcher
-        destination: launcher
     environment_variables:
       RELEASE: 1.0.0
     stages:
@@ -22,8 +21,7 @@ pipelines:
           tasks:
             - script: |
                 set -eux
-                launcher/build.sh --verbose --prod
-                mv launcher/dist .
+                build.sh --verbose --prod
                 echo "Collating binaries..."
                 sha256sum dist/darwin/amd64/run-gocd
                 sha256sum dist/darwin/arm64/run-gocd
