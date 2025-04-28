@@ -20,9 +20,10 @@ pipelines:
       - build:
           elastic_profile_id: ecs-golang-build
           tasks:
-            - script: launcher/build.sh --verbose --prod && mv launcher/dist .
             - script: |
                 set -eux
+                launcher/build.sh --verbose --prod
+                mv launcher/dist .
                 echo "Collating binaries..."
                 sha256sum dist/darwin/amd64/run-gocd
                 sha256sum dist/darwin/arm64/run-gocd
