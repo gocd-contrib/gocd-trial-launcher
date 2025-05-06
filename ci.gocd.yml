@@ -8,7 +8,7 @@ environments:
       - gocd-trial-installers-stable
 pipelines:
   gocd-trial-launcher:
-    group: go-cd-contrib
+    group: go-cd
     display_order: -5
     materials:
       github:
