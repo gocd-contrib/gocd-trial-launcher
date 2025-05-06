@@ -9,7 +9,7 @@ environments:
 pipelines:
   gocd-trial-launcher:
     group: go-cd
-    display_order: -49
+    display_order: 49
     materials:
       github:
         git: https://git.gocd.io/git/gocd/gocd-trial-launcher
