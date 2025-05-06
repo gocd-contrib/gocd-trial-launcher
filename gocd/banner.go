@@ -1,7 +1,7 @@
 package gocd
 
 import (
-	"github.com/gocd-contrib/gocd-trial-launcher/utils"
+	"github.com/gocd/gocd-trial-launcher/utils"
 )
 
 const LOGO_TEXT = `

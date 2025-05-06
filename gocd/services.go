@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strconv"
 
-	"github.com/gocd-contrib/gocd-trial-launcher/utils"
+	"github.com/gocd/gocd-trial-launcher/utils"
 )
 
 const (

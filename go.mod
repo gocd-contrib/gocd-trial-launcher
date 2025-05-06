@@ -1,4 +1,4 @@
-module github.com/gocd-contrib/gocd-trial-launcher
+module github.com/gocd/gocd-trial-launcher
 
 go 1.24
 

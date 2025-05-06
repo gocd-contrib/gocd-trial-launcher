@@ -4,7 +4,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/gocd-contrib/gocd-trial-launcher/utils"
+	"github.com/gocd/gocd-trial-launcher/utils"
 )
 
 var (

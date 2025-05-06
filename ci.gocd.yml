@@ -12,7 +12,7 @@ pipelines:
     display_order: -5
     materials:
       github:
-        git: https://git.gocd.io/git/gocd-contrib/gocd-trial-launcher
+        git: https://git.gocd.io/git/gocd/gocd-trial-launcher
     environment_variables:
       RELEASE: 1.0.0
     stages:
@@ -36,7 +36,7 @@ pipelines:
     display_order: 5
     materials:
       github:
-        git: https://git.gocd.io/git/gocd-contrib/gocd-trial-launcher
+        git: https://git.gocd.io/git/gocd/gocd-trial-launcher
       launcher:
         pipeline: gocd-trial-launcher
         stage: build
@@ -85,7 +85,7 @@ pipelines:
     display_order: 5
     materials:
       github:
-        git: https://git.gocd.io/git/gocd-contrib/gocd-trial-launcher
+        git: https://git.gocd.io/git/gocd/gocd-trial-launcher
       trial-installers: # Only release installers for each stable release off the same dependent code
         pipeline: gocd-trial-installers
         stage: upload

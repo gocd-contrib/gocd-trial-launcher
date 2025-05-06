@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/gocd-contrib/gocd-trial-launcher/gocd"
-	"github.com/gocd-contrib/gocd-trial-launcher/utils"
+	"github.com/gocd/gocd-trial-launcher/gocd"
+	"github.com/gocd/gocd-trial-launcher/utils"
 )
 
 func cleanup() {

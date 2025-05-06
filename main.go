@@ -7,9 +7,9 @@ import (
 	"path/filepath"
 	"syscall"
 
-	"github.com/gocd-contrib/gocd-trial-launcher/gocd"
-	"github.com/gocd-contrib/gocd-trial-launcher/trap"
-	"github.com/gocd-contrib/gocd-trial-launcher/utils"
+	"github.com/gocd/gocd-trial-launcher/gocd"
+	"github.com/gocd/gocd-trial-launcher/trap"
+	"github.com/gocd/gocd-trial-launcher/utils"
 )
 
 var (
